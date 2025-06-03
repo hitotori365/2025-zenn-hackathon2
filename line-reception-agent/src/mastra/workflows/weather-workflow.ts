@@ -3,7 +3,7 @@ import { Agent } from '@mastra/core/agent';
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { z } from 'zod';
 
-const llm = google('gemini-1.5-pro-latest');
+const llm = google('gemini-2.5-flash-preview-05-20');
 
 const agent = new Agent({
   name: 'Weather Agent',

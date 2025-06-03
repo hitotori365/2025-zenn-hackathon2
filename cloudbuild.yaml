@@ -1,0 +1,23 @@
+steps:
+  # Dockerイメージをビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app', './line-reception-agent']
+
+  # Artifact Registryへpush
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app']
+
+  # Cloud Runへデプロイ
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'line-reception-agent'
+      - '--image'
+      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app'
+      - '--region'
+      - 'asia-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated' 
