@@ -1,3 +1,5 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
 steps:
   # Dockerイメージをビルド
   - name: 'gcr.io/cloud-builders/docker'
