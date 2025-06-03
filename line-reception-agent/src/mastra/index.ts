@@ -16,4 +16,7 @@ export const mastra = new Mastra({
     name: 'Mastra',
     level: 'info',
   }),
+  server: {
+    port: process.env.PORT ? Number(process.env.PORT) : 8080,
+  },
 });
