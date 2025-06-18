@@ -1,5 +1,5 @@
-# ベースイメージ（Node.js 18-slim）
-FROM node:18-slim
+# ベースイメージ（Node.js 20-slim）
+FROM node:20-slim
 
 # 作業ディレクトリ
 WORKDIR /app

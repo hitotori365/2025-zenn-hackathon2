@@ -5,7 +5,7 @@ import { weatherWorkflow } from './workflows/weather-workflow';
 import { weatherAgent } from './agents/weather-agent';
 import { lineAgent } from './agents/line-agent';
 
-export const mastra = new Mastra({
+const mastra = new Mastra({
   workflows: { weatherWorkflow },
   agents: { weatherAgent, lineAgent },
   storage: new LibSQLStore({
@@ -20,3 +20,6 @@ export const mastra = new Mastra({
     port: process.env.PORT ? Number(process.env.PORT) : 8080,
   },
 });
+
+// デフォルトエクスポートとして設定
+export default mastra;
