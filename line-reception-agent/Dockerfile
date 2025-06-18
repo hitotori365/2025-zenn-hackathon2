@@ -11,13 +11,10 @@ RUN npm install --include=dev
 # アプリケーションの全ファイルをコピー
 COPY . .
 
-# ビルド実行
-RUN npm run build
-
-# ビルド結果の確認
-RUN ls -la .mastra/output/
+# TypeScriptビルド
+RUN npx tsc
 
 EXPOSE 8080
 
-# Mastraの公式startコマンドを使用
-CMD ["npx", "mastra", "start"]
+# Expressサーバーを起動
+CMD ["node", "dist/server.js"]
