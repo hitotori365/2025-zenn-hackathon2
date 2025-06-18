@@ -22,6 +22,8 @@
     "@mastra/libsql": "^0.10.0",
     "@mastra/loggers": "^0.10.0",
     "@mastra/memory": "^0.10.1",
+    "@types/express": "^4.17.23",
+    "express": "^4.21.2",
     "zod": "^3.25.46"
   },
   "devDependencies": {
