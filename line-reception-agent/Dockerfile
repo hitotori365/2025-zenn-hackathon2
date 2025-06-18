@@ -11,16 +11,13 @@ RUN npm install --include=dev
 # アプリケーションの全ファイルをコピー
 COPY . .
 
-# デバッグ用：ファイルの存在確認
-RUN ls -la
-RUN ls -la .mastra/ || echo "No .mastra directory"
+# ビルド実行
+RUN npm run build
 
-RUN npm run build && ls -la .mastra/output/
-
-# デバッグ用：ビルド後の確認
-RUN ls -la .mastra/output/ || echo "Build output not found"
+# ビルド結果の確認
+RUN ls -la .mastra/output/
 
 EXPOSE 8080
 
-# サーバを起動
-CMD ["node", "--import=./.mastra/output/instrumentation.mjs", ".mastra/output/index.mjs"]
+# Mastraの公式startコマンドを使用
+CMD ["npx", "mastra", "start"]
