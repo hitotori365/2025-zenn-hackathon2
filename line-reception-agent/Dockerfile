@@ -23,4 +23,4 @@ RUN ls -la .mastra/output/ || echo "Build output not found"
 EXPOSE 8080
 
 # サーバを起動
-CMD ["npm", "start"]
+CMD ["node", "--import=./.mastra/output/instrumentation.mjs", ".mastra/output/index.mjs"]
