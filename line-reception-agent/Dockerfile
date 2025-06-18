@@ -10,7 +10,15 @@ RUN npm install
 
 # アプリケーションの全ファイルをコピー
 COPY . .
+
+# デバッグ用：ファイルの存在確認
+RUN ls -la
+RUN ls -la .mastra/ || echo "No .mastra directory"
+
 RUN npm run build
+
+# デバッグ用：ビルド後の確認
+RUN ls -la .mastra/output/ || echo "Build output not found"
 
 EXPOSE 8080
 
