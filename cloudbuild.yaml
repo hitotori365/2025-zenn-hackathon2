@@ -1,13 +1,14 @@
 options:
   logging: CLOUD_LOGGING_ONLY
+
 steps:
   # Dockerイメージをビルド
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app', './line-reception-agent']
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app:$COMMIT_SHA', './line-reception-agent']
 
   # Artifact Registryへpush
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app']
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app:$COMMIT_SHA']
 
   # Cloud Runへデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -17,9 +18,12 @@ steps:
       - 'deploy'
       - 'line-reception-agent'
       - '--image'
-      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app'
+      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app:$COMMIT_SHA'
       - '--region'
       - 'asia-northeast1'
       - '--platform'
       - 'managed'
-      - '--allow-unauthenticated' 
+      - '--allow-unauthenticated'
+
+images:
+  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-reception-agent/app:$COMMIT_SHA' 
