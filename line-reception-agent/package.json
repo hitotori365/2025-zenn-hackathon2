@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "mastra dev",
     "build": "mastra build",
-    "start": "node --import=./.mastra/output/instrumentation.mjs .mastra/output/index.mjs"
+    "start": "mastra start"
   },
   "keywords": [],
   "author": "",
