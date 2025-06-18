@@ -6,7 +6,7 @@ WORKDIR /app
 
 # パッケージファイルをコピーして依存インストール
 COPY package*.json ./
-RUN npm install
+RUN npm install --include=dev
 
 # アプリケーションの全ファイルをコピー
 COPY . .
@@ -15,7 +15,7 @@ COPY . .
 RUN ls -la
 RUN ls -la .mastra/ || echo "No .mastra directory"
 
-RUN npm run build
+RUN npm run build && ls -la .mastra/output/
 
 # デバッグ用：ビルド後の確認
 RUN ls -la .mastra/output/ || echo "Build output not found"
