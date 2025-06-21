@@ -26,5 +26,5 @@ WORKDIR /app
 
 EXPOSE 8080
 
-# サーバを起動（mastra startコマンドを使用）
-CMD ["npm", "run", "start"]
+# 正しい起動コマンド
+CMD ["node", "--import=./.mastra/output/instrumentation.mjs", "./.mastra/output/index.mjs"]
