@@ -18,19 +18,12 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.19",
-<<<<<<< HEAD
     "@google-cloud/firestore": "^7.11.2",
     "@line/bot-sdk": "10.0.0",
-=======
->>>>>>> origin/main
     "@mastra/core": "^0.10.6",
     "@mastra/libsql": "^0.10.3",
     "@mastra/loggers": "^0.10.2",
     "@mastra/memory": "^0.10.4",
-<<<<<<< HEAD
-=======
-    "@line/bot-sdk": "10.0.0",
->>>>>>> origin/main
     "zod": "^3.25.67"
   },
   "devDependencies": {
