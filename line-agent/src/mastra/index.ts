@@ -6,7 +6,10 @@ import { weatherWorkflow } from './workflows/weather-workflow';
 import { weatherAgent } from './agents/weather-agent';
 import { lineAgent } from './agents/line-agent';
 import { Client, validateSignature } from '@line/bot-sdk';
+<<<<<<< HEAD
 import { Firestore } from '@google-cloud/firestore';
+=======
+>>>>>>> origin/main
 
 // LINE設定
 const lineConfig = {
@@ -17,6 +20,7 @@ const lineConfig = {
 // LINEクライアント
 const lineClient = new Client(lineConfig);
 
+<<<<<<< HEAD
 // Firestore初期化を追加
 const firestore = new Firestore({
   projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
@@ -151,6 +155,44 @@ async function handleLineWebhook(events: any[]) {
       });
     }
   });
+=======
+// LINE Webhook処理関数
+async function handleLineWebhook(events: any[]) {
+  const promises = events.map(async (event) => {
+    // テキストメッセージ以外は無視
+    if (event.type !== 'message' || event.message.type !== 'text') {
+      return;
+    }
+
+    try {
+      // lineAgentを呼び出してAI回答を生成
+      const result = await lineAgent.generate([
+        {
+          role: 'user',
+          content: event.message.text,
+        },
+      ]);
+
+      // AI回答を取得
+      const aiResponse = result.text;
+
+      // LINEに返信
+      await lineClient.replyMessage(event.replyToken, {
+        type: 'text',
+        text: aiResponse,
+      });
+    } catch (error) {
+      console.error('Error processing LINE message:', error);
+      
+      // エラー時はデフォルトメッセージを返信
+      await lineClient.replyMessage(event.replyToken, {
+        type: 'text',
+        text: '申し訳ございません。現在メッセージを処理できません。',
+      });
+    }
+  });
+
+>>>>>>> origin/main
   await Promise.all(promises);
 }
 
@@ -191,6 +233,7 @@ export const mastra = new Mastra({
         ],
         handler: async (c) => {
           try {
+<<<<<<< HEAD
             console.log(' Webhookリクエスト受信');
             
             const body = await c.req.json();
@@ -211,6 +254,20 @@ export const mastra = new Mastra({
             return c.json({ status: 'ok' });
           } catch (error) {
             console.error('❌ Error in LINE webhook handler:', error);
+=======
+            const body = await c.req.json();
+            
+            if (!body.events || !Array.isArray(body.events)) {
+              return c.json({ error: 'Invalid request body' }, 400);
+            }
+
+            // LINE Webhookイベントを処理
+            await handleLineWebhook(body.events);
+            
+            return c.json({ status: 'ok' });
+          } catch (error) {
+            console.error('Error in LINE webhook handler:', error);
+>>>>>>> origin/main
             return c.json({ error: 'Internal server error' }, 500);
           }
         },
