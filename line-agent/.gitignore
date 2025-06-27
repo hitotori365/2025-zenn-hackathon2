@@ -6,4 +6,4 @@ dist
 .env
 *.db
 *.db-*
-git rebase -i ab2a25cc55167f76f16cbe77a387ac58f1d1865f^
+line-agent/service-account-key.json
