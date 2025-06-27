@@ -48,19 +48,6 @@ function isEndChatKeyword(message: string): boolean {
   return endKeywords.some(keyword => message.includes(keyword));
 }
 
-function createStartChatMessage() {
-  return {
-    type: 'text',
-    text: '🤖 こんにちは！会話を開始しますか？',
-    quickReply: {
-      items: [
-        { type: 'action', action: { type: 'postback', label: '✅ はい', data: 'action=start_chat' } },
-        { type: 'action', action: { type: 'postback', label: '❌ いいえ', data: 'action=end_chat' } }
-      ]
-    }
-  };
-}
-
 // Postbackイベント処理
 async function handlePostbackEvent(event: any, userId: string) {
   const data = event.postback.data;
