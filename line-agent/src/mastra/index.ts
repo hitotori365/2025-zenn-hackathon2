@@ -28,55 +28,129 @@ console.log('Firestore初期化:', {
   firestoreInstance: firestore ? '作成済み' : '作成失敗'
 });
 
+// ユーザー状態管理関数
+async function getUserState(userId: string) {
+  const userDoc = await firestore.collection('users').doc(userId).get();
+  if (!userDoc.exists) {
+    const newUser = { userId, status: 'waiting', createdAt: new Date(), lastActiveAt: new Date() };
+    await firestore.collection('users').doc(userId).set(newUser);
+    return newUser;
+  }
+  return userDoc.data();
+}
+
+async function updateUserState(userId: string, status: string) {
+  await firestore.collection('users').doc(userId).update({ status, lastActiveAt: new Date() });
+}
+
+function isEndChatKeyword(message: string): boolean {
+  const endKeywords = ['終了', 'やめる', 'リセット', 'おわり'];
+  return endKeywords.some(keyword => message.includes(keyword));
+}
+
+function createStartChatMessage() {
+  return {
+    type: 'text',
+    text: '🤖 こんにちは！会話を開始しますか？',
+    quickReply: {
+      items: [
+        { type: 'action', action: { type: 'postback', label: '✅ はい', data: 'action=start_chat' } },
+        { type: 'action', action: { type: 'postback', label: '❌ いいえ', data: 'action=end_chat' } }
+      ]
+    }
+  };
+}
+
+// Postbackイベント処理
+async function handlePostbackEvent(event: any, userId: string) {
+  const data = event.postback.data;
+  let replyMessage: { type: 'text'; text: string };
+  if (data === 'action=start_chat') {
+    await updateUserState(userId, 'chatting');
+    replyMessage = {
+      type: 'text',
+      text: '✅ ありがとうございます！\n\n🤖 何でもお聞きください！',
+    };
+  } else if (data === 'action=end_chat') {
+    await updateUserState(userId, 'waiting');
+    replyMessage = {
+      type: 'text',
+      text: '❌ 承知いたしました。\n\n🤖 また何かあればどうぞ！',
+    };
+  } else {
+    // 万が一想定外のpostback
+    replyMessage = {
+      type: 'text',
+      text: '不明な操作です。',
+    };
+  }
+  return lineClient.replyMessage(event.replyToken, replyMessage);
+}
+
+// テキストメッセージイベント処理
+async function handleTextEvent(event: any, userId: string) {
+  const userState = await getUserState(userId);
+  const messageText = event.message.text.toLowerCase();
+  if (isEndChatKeyword(messageText)) {
+    await updateUserState(userId, 'waiting');
+    const replyMessage = {
+      type: 'text' as const,
+      text: '🔄 会話を終了しました。\n\n🤖 また何かあればどうぞ！',
+    };
+    return lineClient.replyMessage(event.replyToken, replyMessage);
+  }
+
+  // AI応答を取得
+  const result = await lineAgent.generate([
+    { role: 'user', content: event.message.text },
+  ]);
+  const aiText = result.text;
+
+  let replyMessage: any;
+  if (aiText.includes('無関係')) {
+    // 関係ない話題の場合はwaitingのまま
+    replyMessage = {
+      type: 'text' as const,
+      text: aiText,
+    };
+    await updateUserState(userId, 'waiting');
+  } else {
+    // 関連話題ならchattingフラグを立てる
+    replyMessage = {
+      type: 'text' as const,
+      text: aiText,
+      quickReply: {
+        items: [
+          { type: 'action', action: { type: 'postback', label: '🔄 会話終了', data: 'action=end_chat' } }
+        ]
+      }
+    };
+    await updateUserState(userId, 'chatting');
+  }
+  return lineClient.replyMessage(event.replyToken, replyMessage);
+}
+
 // LINE Webhook処理関数
 async function handleLineWebhook(events: any[]) {
   console.log('📨 LINE Webhook受信:', events.length, '件のイベント');
-  
   const promises = events.map(async (event) => {
-    console.log('📝 イベント処理開始:', event.type, event.message?.type);
-    
-    // テキストメッセージ以外は無視
-    if (event.type !== 'message' || event.message.type !== 'text') {
-      console.log('❌ テキストメッセージ以外のためスキップ');
-      return;
-    }
-
+    const userId = event.source.userId;
     try {
-      console.log(' lineAgent呼び出し開始:', event.message.text);
-      
-      // lineAgentを呼び出してAI回答を生成
-      const result = await lineAgent.generate([
-        {
-          role: 'user',
-          content: event.message.text,
-        },
-      ]);
-
-      console.log('✅ lineAgent応答完了:', result.text);
-
-      // AI回答を取得
-      const aiResponse = result.text;
-
-      console.log('📤 LINE返信開始');
-      
-      // LINEに返信
-      await lineClient.replyMessage(event.replyToken, {
-        type: 'text',
-        text: aiResponse,
-      });
-      
-      console.log('✅ LINE返信完了');
+      if (event.type === 'postback') {
+        return handlePostbackEvent(event, userId);
+      }
+      if (event.type === 'message' && event.message.type === 'text') {
+        return handleTextEvent(event, userId);
+      }
+      return Promise.resolve(null);
     } catch (error) {
       console.error('❌ Error processing LINE message:', error);
-      
-      // エラー時はデフォルトメッセージを返信
       await lineClient.replyMessage(event.replyToken, {
         type: 'text',
-        text: '申し訳ございません。現在メッセージを処理できません。',
+        text: '申し訳ございません。一時的なエラーが発生しました。',
       });
     }
   });
-
   await Promise.all(promises);
 }
 
