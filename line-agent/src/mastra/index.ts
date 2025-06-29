@@ -93,27 +93,23 @@ async function handleTextEvent(event: any, userId: string) {
   ]);
   const aiText = result.text;
 
-  let replyMessage: any;
   if (aiText.includes('無関係')) {
-    // 関係ない話題の場合はwaitingのまま
-    replyMessage = {
-      type: 'text' as const,
-      text: aiText,
-    };
+    // 関係ない話題の場合はwaitingのまま、返信もしない
     await updateUserState(userId, 'waiting');
-  } else {
-    // 関連話題ならchattingフラグを立てる
-    replyMessage = {
-      type: 'text' as const,
-      text: aiText,
-      quickReply: {
-        items: [
-          { type: 'action', action: { type: 'postback', label: '🔄 会話終了', data: 'action=end_chat' } }
-        ]
-      }
-    };
-    await updateUserState(userId, 'chatting');
+    return;
   }
+
+  // 関連話題ならchattingフラグを立てて返信
+  const replyMessage = {
+    type: 'text' as const,
+    text: aiText,
+    quickReply: {
+      items: [
+        { type: 'action' as const, action: { type: 'postback' as const, label: '🔄 会話終了', data: 'action=end_chat' } }
+      ]
+    }
+  };
+  await updateUserState(userId, 'chatting');
   return lineClient.replyMessage(event.replyToken, replyMessage);
 }
 
