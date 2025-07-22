@@ -9,6 +9,16 @@ def format_data(file_path: str) -> pd.DataFrame:
     data = data[data['各局HPリンク'].notna()]
     return data.head(3)
 
+def summarize_url(url, llm):
+    print(f"\n--- {url} ---")
+    query = f"次のURLのページ内容を日本語で200文字以内に要約してください: {url}"
+    resp = llm.invoke(
+        query,
+        tools=[GenAITool(google_search={})],
+    )
+    print("要約:", resp.content)
+    return resp.content
+
 def main():
     load_dotenv()
     api_key = os.getenv("API_KEY")
@@ -22,16 +32,8 @@ def main():
     file_path = "original_data/hojokin2024.csv"
     formatted_df = format_data(file_path)
 
-    for idx, row in formatted_df.iterrows():
-        url = row['各局HPリンク']
-        print(f"\n--- {url} ---")
-        query = f"次のURLのページ内容を日本語で200文字以内に要約してください: {url}"
-        # google_searchツールを有効化
-        resp = llm.invoke(
-            query,
-            tools=[GenAITool(google_search={})],
-        )
-        print("要約:", resp.content)
+    # 各局HPリンク列に対してsummarize_urlを適用
+    formatted_df['要約'] = formatted_df['各局HPリンク'].map(lambda url: summarize_url(url, llm))
 
 if __name__ == "__main__":
     main()
