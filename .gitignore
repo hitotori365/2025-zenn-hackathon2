@@ -1,2 +1,3 @@
 line-agent/service-account-key.json
 .env
+.crush/
