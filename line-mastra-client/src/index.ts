@@ -170,11 +170,13 @@ app.post('/chat/stream', async (c) => {
   }
 });
 
+const port = parseInt(process.env.PORT || '3000', 10);
+
 serve({
   fetch: app.fetch,
-  port: 3000
+  port: port
 }, (info) => {
   console.log(`Server is running on http://localhost:${info.port}`)
-  console.log(`Mastraクライアントが http://localhost:4111 のinquiry-agentに接続されています`)
+  console.log(`Mastraクライアントが ${process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111"} のinquiry-agentに接続されています`)
   console.log(`LINE Webhookエンドポイント: http://localhost:${info.port}/callback`)
 })
