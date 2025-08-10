@@ -5,6 +5,15 @@ import { Client, validateSignature } from '@line/bot-sdk';
 
 const app = new Hono()
 
+// ヘルスチェックエンドポイント
+app.get('/', async (c) => {
+  return c.json({ 
+    status: 'healthy',
+    lineBot: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'enabled' : 'disabled',
+    message: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'LINE Bot is running' : 'LINE Bot is disabled. Please set environment variables.'
+  });
+})
+
 // Mastraクライアントの初期化
 const client = new MastraClient({
   baseUrl: process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111",
@@ -13,14 +22,24 @@ const client = new MastraClient({
 // inquiry-agentのA2Aクライアントを取得
 const inquiryAgent = client.getA2A("inquiryAgent");
 
+// 環境変数のチェック
+if (!process.env.LINE_CHANNEL_ACCESS_TOKEN || !process.env.LINE_CHANNEL_SECRET) {
+  console.error('環境変数 LINE_CHANNEL_ACCESS_TOKEN および LINE_CHANNEL_SECRET が設定されていません。');
+  console.error('Cloud Run コンソールから環境変数を設定してください。');
+  console.error('設定方法: https://console.cloud.google.com/run で該当のサービスを選択し、「編集とデプロイ」から環境変数を追加してください。');
+  
+  // 環境変数が設定されていない場合でも、ヘルスチェック用にサーバーは起動する
+  console.warn('LINE Bot機能は無効化されています。');
+}
+
 // LINE設定
 const lineConfig = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-  channelSecret: process.env.LINE_CHANNEL_SECRET!,
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || 'dummy-token',
+  channelSecret: process.env.LINE_CHANNEL_SECRET || 'dummy-secret',
 };
 
 // LINEクライアント
-const lineClient = new Client(lineConfig);
+const lineClient = process.env.LINE_CHANNEL_ACCESS_TOKEN ? new Client(lineConfig) : null;
 
 // LINE Webhook処理関数
 async function handleLineWebhook(events: any[]) {
@@ -64,18 +83,22 @@ async function handleLineWebhook(events: any[]) {
       }
 
       // LINEに返信
-      await lineClient.replyMessage(event.replyToken, {
-        type: 'text',
-        text: responseText,
-      });
+      if (lineClient) {
+        await lineClient.replyMessage(event.replyToken, {
+          type: 'text',
+          text: responseText,
+        });
+      }
     } catch (error) {
       console.error('Error processing LINE message:', error);
       
       // エラー時はデフォルトメッセージを返信
-      await lineClient.replyMessage(event.replyToken, {
-        type: 'text',
-        text: '申し訳ございません。現在メッセージを処理できません。',
-      });
+      if (lineClient) {
+        await lineClient.replyMessage(event.replyToken, {
+          type: 'text',
+          text: '申し訳ございません。現在メッセージを処理できません。',
+        });
+      }
     }
   });
 
@@ -85,6 +108,11 @@ async function handleLineWebhook(events: any[]) {
 // LINE Webhookエンドポイント
 app.post('/callback', async (c) => {
   try {
+    // LINE機能が無効の場合
+    if (!lineClient) {
+      return c.json({ error: 'LINE Bot functionality is disabled. Please set LINE_CHANNEL_ACCESS_TOKEN and LINE_CHANNEL_SECRET environment variables.' }, 503);
+    }
+
     // LINE署名検証
     const signature = c.req.header('x-line-signature');
     const body = await c.req.text();
