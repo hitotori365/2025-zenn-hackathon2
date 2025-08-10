@@ -138,66 +138,6 @@ app.post('/callback', async (c) => {
   }
 });
 
-// エージェントカードを取得するエンドポイント
-app.get('/agent-card', async (c) => {
-  try {
-    const agentCard = await inquiryAgent.getCard();
-    return c.json(agentCard);
-  } catch (error) {
-    console.error('エージェントカードの取得に失敗しました:', error);
-    return c.json({ error: 'エージェントカードの取得に失敗しました' }, 500);
-  }
-});
-
-
-// エージェントの情報を取得するエンドポイント
-app.get('/agent-info', async (c) => {
-  try {
-    const agentCard = await inquiryAgent.getCard();
-    return c.json({
-      name: agentCard.name,
-      description: agentCard.description
-    });
-  } catch (error) {
-    console.error('エージェント情報の取得に失敗しました:', error);
-    return c.json({ error: 'エージェント情報の取得に失敗しました' }, 500);
-  }
-});
-
-// ストリーミングチャットエンドポイント（テスト用）
-app.post('/chat/stream', async (c) => {
-  try {
-    const { message } = await c.req.json();
-    
-    if (!message) {
-      return c.json({ error: 'メッセージが必要です' }, 400);
-    }
-
-    const id = crypto.randomUUID();
-    const response = await inquiryAgent.sendAndSubscribe({
-      id,
-      message: {
-        role: "user",
-        parts: [
-          { type: "text", text: message },
-        ],
-      },
-    });
-
-    // ストリーミングレスポンスを返す
-    return new Response(response.body, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
-  } catch (error) {
-    console.error('ストリーミングチャットに失敗しました:', error);
-    return c.json({ error: 'ストリーミングチャットに失敗しました' }, 500);
-  }
-});
-
 const port = parseInt(process.env.PORT || '3000', 10);
 
 serve({
