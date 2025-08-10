@@ -1,4 +1,4 @@
-FROM node:20-slim-bullseye
+FROM node:22-slim
 
 # 作業ディレクトリ
 WORKDIR /app
