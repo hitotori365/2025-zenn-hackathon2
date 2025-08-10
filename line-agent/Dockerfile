@@ -3,18 +3,15 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# パッケージファイルをコピーして依存インストール
+# パッケージファイルをコピーして依存インストール（キャッシュレイヤー最適化）
 COPY package*.json ./
-RUN npm install --include=dev
+RUN npm ci --include=dev && npm cache clean --force
 
 # アプリケーションの全ファイルをコピー
 COPY . .
 
 # mastra buildを実行
 RUN npm run build
-
-# ビルド結果の確認
-RUN ls -la .mastra/output/
 
 # 本番用の依存関係のみをインストール
 WORKDIR /app/.mastra/output
