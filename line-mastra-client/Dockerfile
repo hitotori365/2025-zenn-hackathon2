@@ -1,5 +1,4 @@
-# ベースイメージ（Node.js 20-slim）
-FROM node:20-slim
+FROM node:20-slim-bullseye
 
 # 作業ディレクトリ
 WORKDIR /app
