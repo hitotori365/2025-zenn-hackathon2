@@ -2,6 +2,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+  # line-agent のビルドとデプロイ
   # Dockerイメージをビルド
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA', './line-agent']
@@ -25,5 +26,34 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
 
+  # check-subsidy-agent のビルドとデプロイ
+  # Dockerイメージをビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA', './check-subsidy-agent']
+
+  # Artifact Registryへpush
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA']
+
+  # Cloud Runへデプロイ
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'check-subsidy-agent'
+      - '--image'
+      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA'
+      - '--region'
+      - 'asia-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '512Mi'
+
 images:
-  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA' 
+  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
+  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA'
