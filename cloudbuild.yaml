@@ -5,11 +5,6 @@ options:
 steps:
   # フェーズ0: 既存のイメージをキャッシュとして取得
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'pull-cache-line-agent'
-    entrypoint: 'bash'
-    args: ['-c', 'docker pull asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest || exit 0']
-
-  - name: 'gcr.io/cloud-builders/docker'
     id: 'pull-cache-check-subsidy-agent'
     entrypoint: 'bash'
     args: ['-c', 'docker pull asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:latest || exit 0']
@@ -20,17 +15,6 @@ steps:
     args: ['-c', 'docker pull asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:latest || exit 0']
 
   # フェーズ1: 全てのDockerイメージを並列でビルド（キャッシュ使用）
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-line-agent'
-    args: [
-      'build', 
-      '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA',
-      '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest',
-      '--cache-from', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest',
-      './line-agent'
-    ]
-    waitFor: ['pull-cache-line-agent']
-
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-check-subsidy-agent'
     args: [
@@ -54,16 +38,6 @@ steps:
     waitFor: ['pull-cache-line-mastra-client']
 
   # フェーズ2: 全てのイメージを並列でpush（ビルド完了後）
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-line-agent'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA']
-    waitFor: ['build-line-agent']
-
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-line-agent-latest'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest']
-    waitFor: ['build-line-agent']
-
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-check-subsidy-agent'
     args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA']
@@ -103,23 +77,7 @@ steps:
       - '512Mi'
     waitFor: ['push-check-subsidy-agent']
 
-  # フェーズ4: line-agentとline-mastra-clientを並列でデプロイ
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-line-agent'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - 'line-agent'
-      - '--image'
-      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
-      - '--region'
-      - 'asia-northeast1'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-    waitFor: ['push-line-agent']
-
+  # フェーズ4: line-mastra-clientをデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-line-mastra-client'
     entrypoint: gcloud
@@ -143,8 +101,6 @@ steps:
     waitFor: ['push-line-mastra-client', 'deploy-check-subsidy-agent']
 
 images:
-  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
-  - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest'
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA'
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:latest'
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:$COMMIT_SHA'
