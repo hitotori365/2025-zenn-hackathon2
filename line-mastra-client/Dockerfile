@@ -1,20 +1,29 @@
-FROM node:22-slim
+# ビルドステージ
+FROM node:22-slim AS builder
 
-# 作業ディレクトリ
 WORKDIR /app
 
-# パッケージファイルをコピーして依存インストール（開発依存関係も含む）
+# パッケージファイルをコピーして依存インストール
 COPY package*.json ./
 RUN npm ci
 
-# アプリケーションファイルをコピー
+# ソースコードをコピー
 COPY . .
 
 # TypeScriptをビルド
 RUN npm run build
 
-# ポート3000を公開
-EXPOSE 3000
+# プロダクションステージ
+FROM node:22-slim AS production
+
+WORKDIR /app
+
+# 本番用依存関係のみをインストール
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# ビルド済みファイルをコピー
+COPY --from=builder /app/dist ./dist
 
 # アプリケーション起動
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
