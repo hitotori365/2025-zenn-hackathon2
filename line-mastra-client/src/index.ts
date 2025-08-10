@@ -7,7 +7,7 @@ const app = new Hono()
 
 // Mastraクライアントの初期化
 const client = new MastraClient({
-  baseUrl: process.env.MASTRA_BASE_URL || "http://localhost:4111",
+  baseUrl: process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111",
 });
 
 // inquiry-agentのA2Aクライアントを取得
