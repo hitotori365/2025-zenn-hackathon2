@@ -142,23 +142,6 @@ steps:
       - 'CHECK_SUBSIDY_AGENT_URL=https://check-subsidy-agent-345333162945.asia-northeast1.run.app'
     waitFor: ['push-line-mastra-client', 'deploy-check-subsidy-agent']
 
-  # IAMポリシーを明示的に設定
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'set-iam-line-mastra-client'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'services'
-      - 'add-iam-policy-binding'
-      - 'line-mastra-client'
-      - '--region'
-      - 'asia-northeast1'
-      - '--member'
-      - 'allUsers'
-      - '--role'
-      - 'roles/run.invoker'
-    waitFor: ['deploy-line-mastra-client']
-
 images:
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:latest'
