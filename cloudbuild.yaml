@@ -1,42 +1,40 @@
 options:
   logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'  # 並列処理のためにCPU数を増加
 
 steps:
-  # line-agent のビルドとデプロイ
-  # Dockerイメージをビルド
+  # フェーズ1: 全てのDockerイメージを並列でビルド
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-line-agent'
     args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA', './line-agent']
 
-  # Artifact Registryへpush
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA']
-
-  # Cloud Runへデプロイ
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - 'line-agent'
-      - '--image'
-      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
-      - '--region'
-      - 'asia-northeast1'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-
-  # check-subsidy-agent のビルドとデプロイ
-  # Dockerイメージをビルド
-  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-check-subsidy-agent'
     args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA', './check-subsidy-agent']
 
-  # Artifact Registryへpush
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA']
+    id: 'build-line-mastra-client'
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:$COMMIT_SHA', './line-mastra-client']
 
-  # Cloud Runへデプロイ
+  # フェーズ2: 全てのイメージを並列でpush（ビルド完了後）
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-line-agent'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA']
+    waitFor: ['build-line-agent']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-check-subsidy-agent'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/check-subsidy-agent:$COMMIT_SHA']
+    waitFor: ['build-check-subsidy-agent']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-line-mastra-client'
+    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:$COMMIT_SHA']
+    waitFor: ['build-line-mastra-client']
+
+  # フェーズ3: check-subsidy-agentを先にデプロイ（line-mastra-clientの依存関係）
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-check-subsidy-agent'
     entrypoint: gcloud
     args:
       - 'run'
@@ -49,22 +47,29 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '8080'
       - '--memory'
       - '512Mi'
+    waitFor: ['push-check-subsidy-agent']
 
-  # line-mastra-client のビルドとデプロイ
-  # Dockerイメージをビルド
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:$COMMIT_SHA', './line-mastra-client']
-
-  # Artifact Registryへpush
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/line-mastra-client:$COMMIT_SHA']
-
-  # Cloud Runへデプロイ
+  # フェーズ4: line-agentとline-mastra-clientを並列でデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-line-agent'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'line-agent'
+      - '--image'
+      - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
+      - '--region'
+      - 'asia-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    waitFor: ['push-line-agent']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-line-mastra-client'
     entrypoint: gcloud
     args:
       - 'run'
@@ -81,6 +86,7 @@ steps:
       - '256Mi'
       - '--set-env-vars'
       - 'CHECK_SUBSIDY_AGENT_URL=https://check-subsidy-agent-345333162945.asia-northeast1.run.app,LINE_CHANNEL_ACCESS_TOKEN=$_LINE_CHANNEL_ACCESS_TOKEN,LINE_CHANNEL_SECRET=$_LINE_CHANNEL_SECRET'
+    waitFor: ['push-line-mastra-client', 'deploy-check-subsidy-agent']
 
 images:
   - 'asia-northeast1-docker.pkg.dev/zenn-hackathon2/line-agent/app:$COMMIT_SHA'
