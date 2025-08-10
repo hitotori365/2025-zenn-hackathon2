@@ -1,0 +1,19 @@
+{
+  "name": "line-mastra-client",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.18.1",
+    "@mastra/client-js": "^0.10.20",
+    "hono": "^4.8.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}

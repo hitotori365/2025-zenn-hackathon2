@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.development
+*.db
+*.db-*
+output.txt
+.mastra
+.git
+.gitignore
+README.md
+.DS_Store
