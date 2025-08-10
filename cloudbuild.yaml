@@ -139,7 +139,7 @@ steps:
       - '--timeout'
       - '300'
       - '--set-env-vars'
-      - 'CHECK_SUBSIDY_AGENT_URL=https://check-subsidy-agent-345333162945.asia-northeast1.run.app,LINE_CHANNEL_ACCESS_TOKEN=$_LINE_CHANNEL_ACCESS_TOKEN,LINE_CHANNEL_SECRET=$_LINE_CHANNEL_SECRET'
+      - 'CHECK_SUBSIDY_AGENT_URL=https://check-subsidy-agent-345333162945.asia-northeast1.run.app'
     waitFor: ['push-line-mastra-client', 'deploy-check-subsidy-agent']
 
   # IAMポリシーを明示的に設定
