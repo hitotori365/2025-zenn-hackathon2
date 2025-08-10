@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.18.1",
+    "@line/bot-sdk": "^10.0.0",
     "@mastra/client-js": "^0.10.20",
     "hono": "^4.8.12"
   },

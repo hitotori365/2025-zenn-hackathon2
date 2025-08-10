@@ -3,15 +3,14 @@ FROM node:22-slim
 # 作業ディレクトリ
 WORKDIR /app
 
-# パッケージファイルをコピーして依存インストール
+# パッケージファイルをコピーして依存インストール（開発依存関係も含む）
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # アプリケーションファイルをコピー
 COPY . .
 
 # TypeScriptをビルド
-RUN npm install --save-dev typescript
 RUN npm run build
 
 # ポート3000を公開
