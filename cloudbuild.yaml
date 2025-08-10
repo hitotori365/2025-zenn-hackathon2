@@ -77,8 +77,6 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '3000'
       - '--memory'
       - '256Mi'
       - '--set-env-vars'

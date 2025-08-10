@@ -1,7 +1,6 @@
-# ベースイメージ（Node.js 20-slim）
-FROM node:22-slim
+# ビルドステージ
+FROM node:22-slim AS builder
 
-# 作業ディレクトリ
 WORKDIR /app
 
 # パッケージファイルをコピーして依存インストール
@@ -19,12 +18,17 @@ RUN ls -la .mastra/output/
 
 # 本番用の依存関係のみをインストール
 WORKDIR /app/.mastra/output
-RUN npm ci --only=production
+RUN npm ci --omit=dev && npm cache clean --force
 
-# 作業ディレクトリを戻す
+# プロダクションステージ
+FROM node:22-slim AS production
+
 WORKDIR /app
+
+# ビルド済みファイルをコピー
+COPY --from=builder /app/.mastra/output ./
 
 EXPOSE 8080
 
 # 正しい起動コマンド
-CMD ["node", "--import=./.mastra/output/instrumentation.mjs", "./.mastra/output/index.mjs"]
+CMD ["node", "--import=./instrumentation.mjs", "./index.mjs"]
