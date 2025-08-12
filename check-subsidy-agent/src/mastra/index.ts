@@ -1,9 +1,36 @@
+import { Mastra } from "@mastra/core/mastra";
+import { PinoLogger } from "@mastra/loggers";
+import { LibSQLStore } from "@mastra/libsql";
+import { subsidyInquiryWorkflow } from "./workflows/subsidy-inquiry-workflow";
+import { createAgent } from "./agents/inquiry-agent";
+import { subsidySearchTool } from "./tools/subsidy-search-tool";
+import { createJSONSubsidyRepository } from "./infrastructure/json/subsidyRepositoryImplOnJson";
+import { createCSVSubsidyRepository } from "./infrastructure/csv/subsidyRepositoryImplOnCsv";
+import { config } from "./config/config.js";
+import { createSubsidySearchService } from "./repositories/functional-subsidy-repository";
 
-import { Mastra } from '@mastra/core/mastra';
-import { PinoLogger } from '@mastra/loggers';
-import { LibSQLStore } from '@mastra/libsql';
-import { subsidyInquiryWorkflow } from './workflows/subsidy-inquiry-workflow';
-import { inquiryAgent } from './agents/inquiry-agent';
+// Factory function to create repository based on environment
+const createRepository = (subsidyDataSource: string) => {
+  switch (subsidyDataSource) {
+    case "json":
+      return createJSONSubsidyRepository();
+    case "db":
+      // Future: return createDatabaseSubsidyRepository();
+      throw new Error("Database repository not implemented yet");
+    case "csv":
+      return createCSVSubsidyRepository();
+    default:
+      return createCSVSubsidyRepository();
+  }
+};
+
+// Initialize service with repository (functional dependency injection)
+const subsidyRepository = createRepository(config.dataSource);
+const subsidySearchService = createSubsidySearchService(subsidyRepository);
+const searchTools = subsidySearchTool(subsidySearchService);
+
+// Create the inquiry agent with the search tools
+const inquiryAgent = createAgent(searchTools);
 
 export const mastra = new Mastra({
   workflows: { subsidyInquiryWorkflow },
@@ -13,7 +40,7 @@ export const mastra = new Mastra({
     url: ":memory:",
   }),
   logger: new PinoLogger({
-    name: 'Mastra',
-    level: 'info',
+    name: "Mastra",
+    level: "info",
   }),
 });

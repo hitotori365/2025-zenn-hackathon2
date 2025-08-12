@@ -1,0 +1,16 @@
+export const subsidyCSVRow = {
+  year: "年度",
+  organizationNumber: "所管局№",
+  organization: "所管局",
+  policyFieldNumber: "施策分野№",
+  policyField: "施策分野",
+  businessName: "事業名",
+  subsidyName: "補助金名",
+  subsidyDescription: "補助金の概要",
+  targetNumber: "補助対象者№",
+  target: "補助対象者",
+  budgetAmount: "令和６年度予算額（千円）",
+  department: "所管部署",
+  contact: "問い合わせ先",
+  url: "各局HPリンク",
+} as const;

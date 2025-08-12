@@ -4,9 +4,12 @@ import { Memory } from "@mastra/memory";
 import { LibSQLStore } from "@mastra/libsql";
 import { subsidySearchTool } from "../tools/subsidy-search-tool";
 
-export const inquiryAgent = new Agent({
-  name: "Inquiry Check Agent",
-  instructions: `
+export const createAgent = (
+  searchTools: ReturnType<typeof subsidySearchTool>
+) => {
+  return new Agent({
+    name: "Inquiry Check Agent",
+    instructions: `
 あなたは補助金一覧確認エージェントです。A2Aクライアント（Honoサーバー）からの問い合わせに対して、「使えそうな補助金があるorない」の判定結果を返すことが最重要な役割です。
 
 【最重要】必ず守るべきルール：
@@ -31,11 +34,12 @@ export const inquiryAgent = new Agent({
 
 【重要】あなたは補助金一覧確認エージェントです。詳細な相談や申請方法の案内は、別の補助金詳細確認エージェントが担当します。
 `,
-  model: google("gemini-2.5-pro"),
-  tools: { subsidySearchTool },
-  memory: new Memory({
-    storage: new LibSQLStore({
-      url: "file:../mastra.db",
+    model: google("gemini-2.5-pro"),
+    tools: { searchSubsidy: searchTools },
+    memory: new Memory({
+      storage: new LibSQLStore({
+        url: "file:../mastra.db",
+      }),
     }),
-  }),
-});
+  });
+};
