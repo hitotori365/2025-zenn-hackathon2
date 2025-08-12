@@ -22,6 +22,7 @@
     "@mastra/libsql": "^0.12.0",
     "@mastra/loggers": "^0.10.5",
     "@mastra/memory": "^0.12.0",
+    "csv-parser": "^3.2.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
