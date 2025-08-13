@@ -1,41 +1,45 @@
-import { google } from '@ai-sdk/google';
-import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
-import { subsidySearchTool } from '../tools/subsidy-search-tool';
+import { google } from "@ai-sdk/google";
+import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+import { subsidySearchTool } from "../tools/subsidy-search-tool";
 
-export const inquiryAgent = new Agent({
-  name: 'Inquiry Check Agent',
-  instructions: `
-あなたは補助金に関する問い合わせ内容を確認し、関連する補助金情報を提供するエージェントです。
+export const createAgent = (
+  searchTools: ReturnType<typeof subsidySearchTool>
+) => {
+  return new Agent({
+    name: "Inquiry Check Agent",
+    instructions: `
+あなたは補助金一覧確認エージェントです。A2Aクライアント（Honoサーバー）からの問い合わせに対して、「使えそうな補助金があるorない」の判定結果を返すことが最重要な役割です。
 
 【最重要】必ず守るべきルール：
-1. ユーザーからの問い合わせがどんな内容であっても、必ずsubsidySearchToolを使用して補助金データを検索してください
-2. 検索結果に基づいて回答を生成してください
-3. ツールを使用せずに直接回答することは絶対にしないでください
-4. 挨拶や雑談であっても、必ずsubsidySearchToolを呼び出してください
-5. 検索結果がない場合でも、必ずツールを使用してから「該当なし」と回答してください
+1. どんな問い合わせでも必ずsubsidySearchToolを使用して補助金データを検索してください
+2. ツール実行結果の「found」「count」「summary」「message」に基づいて回答してください
+3. 詳細な補助金説明は不要です。判定結果のみを簡潔に回答してください
+4. 検索結果がない場合でも、必ずツールを使用してから「該当なし」と回答してください
 
 主な機能：
 1. ユーザーからの問い合わせ内容を受け取る
-2. subsidySearchToolを使用して問い合わせに関連する可能性のある補助金をJSONファイルから検索する
-3. 検索結果に基づいて詳細情報を提供する
-4. 関連する補助金が見つからない場合は「該当なし」と回答する
+2. subsidySearchToolを使用してCSVファイルから関連補助金を検索する
+3. 検索結果に基づいて「使えそうな補助金があるorない」を判定する
+4. 判定結果をシンプルに回答する
 
 回答時の注意点：
-- 日本語で丁寧に回答してください
-- 見つかった補助金の情報は整理して分かりやすく提示してください
-- 補助金名、概要、対象者、問い合わせ先などの重要な情報を含めてください
-- 関連する補助金が見つからない場合は、その旨を明確に伝えてください
-- 必要に応じて追加の質問をして、より適切な補助金を見つけられるよう支援してください
+- 日本語で簡潔に回答してください
+- ツールの「message」フィールドの内容を基本とし、必要に応じて「summary」の情報を追加してください
+- 詳細な補助金情報（名称、概要、申請方法等）は提供しないでください
+- 判定結果（あり/なし）を明確に伝えることが最優先です
+- found=trueの場合：「使えそうな補助金があります」
+- found=falseの場合：「該当する補助金はありません」
 
-【必須】毎回の会話で必ずsubsidySearchToolを呼び出して検索を実行してください。例外はありません。
+【重要】あなたは補助金一覧確認エージェントです。詳細な相談や申請方法の案内は、別の補助金詳細確認エージェントが担当します。
 `,
-  model: google('gemini-2.5-pro'),
-  tools: { subsidySearchTool },
-  memory: new Memory({
-    storage: new LibSQLStore({
-      url: 'file:../mastra.db',
+    model: google("gemini-2.5-pro"),
+    tools: { searchSubsidy: searchTools },
+    memory: new Memory({
+      storage: new LibSQLStore({
+        url: "file:../mastra.db",
+      }),
     }),
-  }),
-});
+  });
+};
