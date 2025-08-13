@@ -3,14 +3,38 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { MastraClient } from "@mastra/client-js";
 import { Client, validateSignature } from '@line/bot-sdk';
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 const app = new Hono()
 
+// Firebaseアプリの初期化（gcloud auth application-default loginの認証を使用）
+const firebaseApp = initializeApp({
+  credential: applicationDefault(),
+  projectId: process.env.GCP_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT,
+});
+
+// Firestoreインスタンスの取得
+const db = getFirestore(firebaseApp);
+
 // ヘルスチェックエンドポイント
 app.get('/', async (c) => {
+  let firestoreStatus = 'unknown';
+  
+  try {
+    // Firestoreの接続確認（コレクションリストの取得を試みる）
+    const collections = await db.listCollections();
+    firestoreStatus = 'connected';
+    console.log(`Firestore接続確認: ${collections.length}個のコレクションが見つかりました`);
+  } catch (error) {
+    firestoreStatus = 'error';
+    console.error('Firestore接続エラー:', error);
+  }
+  
   return c.json({ 
     status: 'healthy',
     lineBot: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'enabled' : 'disabled',
+    firestore: firestoreStatus,
     message: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'LINE Bot is running' : 'LINE Bot is disabled. Please set environment variables.'
   });
 })
@@ -148,4 +172,5 @@ serve({
   console.log(`Server is running on http://localhost:${info.port}`)
   console.log(`Mastraクライアントが ${process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111"} のinquiry-agentに接続されています`)
   console.log(`LINE Webhookエンドポイント: http://localhost:${info.port}/callback`)
+  console.log(`Firestore初期化: ${process.env.GCP_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || 'プロジェクトID未設定'}`)
 })
