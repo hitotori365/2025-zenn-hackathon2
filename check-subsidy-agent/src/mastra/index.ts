@@ -7,10 +7,10 @@ import { subsidySearchTool } from "./tools/subsidy-search-tool";
 import { createJSONSubsidyRepository } from "./infrastructure/json/subsidyRepositoryImplOnJson";
 import { createCSVSubsidyRepository } from "./infrastructure/csv/subsidyRepositoryImplOnCsv";
 import { config } from "./config/config.js";
-import { createSubsidySearchService } from "./repositories/functional-subsidy-repository";
+import { createSubsidySearchUsecase } from "./usecase/create-subsidy-search-usecase";
 
 // Factory function to create repository based on environment
-const createRepository = (subsidyDataSource: string) => {
+const createRepository = (subsidyDataSource: string, dataPath: string) => {
   switch (subsidyDataSource) {
     case "json":
       return createJSONSubsidyRepository();
@@ -18,16 +18,16 @@ const createRepository = (subsidyDataSource: string) => {
       // Future: return createDatabaseSubsidyRepository();
       throw new Error("Database repository not implemented yet");
     case "csv":
-      return createCSVSubsidyRepository();
+      return createCSVSubsidyRepository(dataPath);
     default:
-      return createCSVSubsidyRepository();
+      return createCSVSubsidyRepository(dataPath);
   }
 };
 
-// Initialize service with repository (functional dependency injection)
-const subsidyRepository = createRepository(config.dataSource);
-const subsidySearchService = createSubsidySearchService(subsidyRepository);
-const searchTools = subsidySearchTool(subsidySearchService);
+// Initialize usecase with repository (functional dependency injection)
+const subsidyRepository = createRepository(config.dataSource, config.csvPath);
+const subsidySearchUsecase = createSubsidySearchUsecase(subsidyRepository);
+const searchTools = subsidySearchTool(subsidySearchUsecase);
 
 // Create the inquiry agent with the search tools
 const inquiryAgent = createAgent(searchTools);

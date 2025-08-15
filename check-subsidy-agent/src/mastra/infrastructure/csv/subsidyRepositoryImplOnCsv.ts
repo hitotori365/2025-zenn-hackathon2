@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import csv from "csv-parser";
-import { config } from "../../config/config.js";
 import {
   SubsidyData,
   SubsidyRepository,
@@ -13,31 +11,17 @@ import { subsidyCSVRow } from "./subsidyCSVRow.js";
 type RawCSVData = Record<string, string>;
 
 // Helper function to resolve CSV file path
-const resolveCSVPath = (csvFilePath?: string, csvPath?: string): string => {
-  if (csvFilePath) {
-    // If absolute path, use as is
-    if (path.isAbsolute(csvFilePath)) {
-      return csvFilePath;
-    }
-    // If relative path, resolve from project root
-    const currentFileUrl = import.meta.url;
-    const currentFilePath = fileURLToPath(currentFileUrl);
-    const currentDir = path.dirname(currentFilePath);
-    const projectRoot = path.resolve(currentDir, "../../../../../");
-    return path.join(projectRoot, csvFilePath);
+const resolveCSVPath = (csvFilePath: string): string => {
+  // If absolute path, use as is
+  if (path.isAbsolute(csvFilePath)) {
+    return csvFilePath;
   }
-
-  // Default: resolve csvPath relative to project root
-  const envPath = csvPath || config.csvPath;
-  if (path.isAbsolute(envPath)) {
-    return envPath;
-  }
-
-  const currentFileUrl = import.meta.url;
-  const currentFilePath = fileURLToPath(currentFileUrl);
-  const currentDir = path.dirname(currentFilePath);
-  const projectRoot = path.resolve(currentDir, "../../../../../");
-  return path.join(projectRoot, envPath);
+  // If relative path, resolve from project root
+  const currentWorkingDir = process.cwd();
+  const projectRoot = currentWorkingDir.includes(".mastra/output")
+    ? path.resolve(currentWorkingDir, "../../")
+    : currentWorkingDir;
+  return path.join(projectRoot, csvFilePath);
 };
 
 // Pure function to read raw CSV data
@@ -115,7 +99,7 @@ const filterSubsidies = (
 
 // Higher-order function to create CSV-based repository
 export const createCSVSubsidyRepository = (
-  csvFilePath?: string
+  csvFilePath: string
 ): SubsidyRepository => {
   const resolvedPath = resolveCSVPath(csvFilePath);
 
