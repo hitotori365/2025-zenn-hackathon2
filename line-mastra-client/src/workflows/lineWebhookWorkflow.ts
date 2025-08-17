@@ -1,5 +1,7 @@
 import { MastraClient } from "@mastra/client-js";
 import { Client } from '@line/bot-sdk';
+import { checkMessageRelevance } from '../utils/messageRelevanceChecker';
+import { checkSubsidyFound } from '../utils/subsidyResultChecker';
 
 // Workflow input type
 interface LineWebhookInput {
@@ -17,6 +19,15 @@ export const handleLineWebhook = async (
   console.log(`Processing message for user ${input.userId}`);
   
   try {
+    // メッセージの関連性をチェック
+    const relevanceCheck = await checkMessageRelevance(input.messageText);
+    console.log(`Message relevance score: ${relevanceCheck.score}`);
+    
+    // 関連性が低い場合は早期終了（返信なし）
+    if (!relevanceCheck.isRelevant) {
+      console.log('Message is not relevant to subsidies. Skipping processing.');
+      return { success: true, message: 'Message not relevant - no response sent' };
+    }
     // inquiry-agentのA2Aクライアントを取得
     const inquiryAgent = mastraClient.getA2A("inquiryAgent");
     const id = crypto.randomUUID();
@@ -54,6 +65,13 @@ export const handleLineWebhook = async (
     
     if (!responseText) {
       responseText = "申し訳ございません。うまく聞き取れませんでした。";
+    }
+    
+    // 補助金が見つかったかチェック
+    const subsidyFound = checkSubsidyFound(responseText);
+    if (!subsidyFound) {
+      console.log('No subsidy found. Skipping response.');
+      return { success: true, message: 'No subsidy found - no response sent' };
     }
     
     // LINEに返信

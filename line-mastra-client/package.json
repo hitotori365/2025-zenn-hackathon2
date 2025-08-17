@@ -12,7 +12,8 @@
     "@mastra/client-js": "^0.10.20",
     "dotenv": "^17.2.1",
     "firebase-admin": "^13.4.0",
-    "hono": "^4.8.12"
+    "hono": "^4.8.12",
+    "openai": "^5.12.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
