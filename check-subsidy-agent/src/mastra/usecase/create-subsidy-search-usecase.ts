@@ -1,7 +1,10 @@
-import { SubsidyRepository, SubsidySearchResult } from "./subsidy-repository";
+import {
+  SubsidyRepository,
+  SubsidySearchResult,
+} from "../repositories/subsidy-repository";
 
 // Higher-order function to create search service
-export const createSubsidySearchService = (repository: SubsidyRepository) => {
+export const createSubsidySearchUsecase = (repository: SubsidyRepository) => {
   return async (query: string): Promise<SubsidySearchResult> => {
     try {
       const relevantSubsidies = await repository.search(query);
