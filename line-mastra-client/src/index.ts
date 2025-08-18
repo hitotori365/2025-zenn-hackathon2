@@ -1,15 +1,41 @@
+import 'dotenv/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { MastraClient } from "@mastra/client-js";
 import { Client, validateSignature } from '@line/bot-sdk';
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { handleLineWebhook } from './workflows/lineWebhookWorkflow';
 
 const app = new Hono()
 
+// Firebaseアプリの初期化（gcloud auth application-default loginの認証を使用）
+const firebaseApp = initializeApp({
+  credential: applicationDefault(),
+  projectId: process.env.GCP_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT,
+});
+
+// Firestoreインスタンスの取得
+const db = getFirestore(firebaseApp);
+
 // ヘルスチェックエンドポイント
 app.get('/', async (c) => {
+  let firestoreStatus = 'unknown';
+  
+  try {
+    // Firestoreの接続確認（コレクションリストの取得を試みる）
+    const collections = await db.listCollections();
+    firestoreStatus = 'connected';
+    console.log(`Firestore接続確認: ${collections.length}個のコレクションが見つかりました`);
+  } catch (error) {
+    firestoreStatus = 'error';
+    console.error('Firestore接続エラー:', error);
+  }
+  
   return c.json({ 
     status: 'healthy',
     lineBot: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'enabled' : 'disabled',
+    firestore: firestoreStatus,
     message: process.env.LINE_CHANNEL_ACCESS_TOKEN ? 'LINE Bot is running' : 'LINE Bot is disabled. Please set environment variables.'
   });
 })
@@ -18,9 +44,6 @@ app.get('/', async (c) => {
 const client = new MastraClient({
   baseUrl: process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111",
 });
-
-// inquiry-agentのA2Aクライアントを取得
-const inquiryAgent = client.getA2A("inquiryAgent");
 
 // 環境変数のチェック
 if (!process.env.LINE_CHANNEL_ACCESS_TOKEN || !process.env.LINE_CHANNEL_SECRET) {
@@ -41,69 +64,7 @@ const lineConfig = {
 // LINEクライアント
 const lineClient = process.env.LINE_CHANNEL_ACCESS_TOKEN ? new Client(lineConfig) : null;
 
-// LINE Webhook処理関数
-async function handleLineWebhook(events: any[]) {
-  const promises = events.map(async (event) => {
-    // テキストメッセージ以外は無視
-    if (event.type !== 'message' || event.message.type !== 'text') {
-      return;
-    }
 
-    try {
-      // inquiryAgentにメッセージを送信
-      const id = crypto.randomUUID();
-      const response = await inquiryAgent.sendMessage({
-        id,
-        message: {
-          role: "user",
-          parts: [
-            { type: "text", text: event.message.text },
-          ],
-        },
-      });
-
-      // タスクの状態を確認
-      let task = response.task;
-      
-      // タスクがworking状態の場合は完了まで待機
-      if (task.status.state === "working") {
-        console.log("Waiting for task to complete...");
-        while (task.status.state === "working") {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          task = await inquiryAgent.getTask({ id: task.id });
-        }
-      }
-
-      // レスポンスメッセージを抽出
-      let responseText = "";
-      for (const part of task.status.message?.parts || []) {
-        if (part.type === "text") {
-          responseText += part.text;
-        }
-      }
-
-      // LINEに返信
-      if (lineClient) {
-        await lineClient.replyMessage(event.replyToken, {
-          type: 'text',
-          text: responseText,
-        });
-      }
-    } catch (error) {
-      console.error('Error processing LINE message:', error);
-      
-      // エラー時はデフォルトメッセージを返信
-      if (lineClient) {
-        await lineClient.replyMessage(event.replyToken, {
-          type: 'text',
-          text: '申し訳ございません。現在メッセージを処理できません。',
-        });
-      }
-    }
-  });
-
-  await Promise.all(promises);
-}
 
 // LINE Webhookエンドポイント
 app.post('/callback', async (c) => {
@@ -128,8 +89,32 @@ app.post('/callback', async (c) => {
       return c.json({ error: 'Invalid request body' }, 400);
     }
 
-    // LINE Webhookイベントを処理
-    await handleLineWebhook(jsonBody.events);
+    // LINE Webhookイベントを処理（workflowを使用）
+    const promises = jsonBody.events.map(async (event: any) => {
+      // テキストメッセージ以外は無視
+      if (event.type !== 'message' || event.message.type !== 'text') {
+        return;
+      }
+      
+      const userId = event.source?.userId;
+      if (!userId) {
+        console.error("userId not found in the event");
+        return;
+      }
+      
+      // ワークフロー処理を実行
+      try {
+        await handleLineWebhook(client, lineClient, {
+          userId: userId,
+          messageText: event.message.text,
+          replyToken: event.replyToken,
+        });
+      } catch (error) {
+        console.error('Error handling LINE webhook:', error);
+      }
+    });
+    
+    await Promise.all(promises);
     
     return c.json({ status: 'ok' });
   } catch (error) {
@@ -138,73 +123,15 @@ app.post('/callback', async (c) => {
   }
 });
 
-// エージェントカードを取得するエンドポイント
-app.get('/agent-card', async (c) => {
-  try {
-    const agentCard = await inquiryAgent.getCard();
-    return c.json(agentCard);
-  } catch (error) {
-    console.error('エージェントカードの取得に失敗しました:', error);
-    return c.json({ error: 'エージェントカードの取得に失敗しました' }, 500);
-  }
-});
-
-
-// エージェントの情報を取得するエンドポイント
-app.get('/agent-info', async (c) => {
-  try {
-    const agentCard = await inquiryAgent.getCard();
-    return c.json({
-      name: agentCard.name,
-      description: agentCard.description
-    });
-  } catch (error) {
-    console.error('エージェント情報の取得に失敗しました:', error);
-    return c.json({ error: 'エージェント情報の取得に失敗しました' }, 500);
-  }
-});
-
-// ストリーミングチャットエンドポイント（テスト用）
-app.post('/chat/stream', async (c) => {
-  try {
-    const { message } = await c.req.json();
-    
-    if (!message) {
-      return c.json({ error: 'メッセージが必要です' }, 400);
-    }
-
-    const id = crypto.randomUUID();
-    const response = await inquiryAgent.sendAndSubscribe({
-      id,
-      message: {
-        role: "user",
-        parts: [
-          { type: "text", text: message },
-        ],
-      },
-    });
-
-    // ストリーミングレスポンスを返す
-    return new Response(response.body, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
-  } catch (error) {
-    console.error('ストリーミングチャットに失敗しました:', error);
-    return c.json({ error: 'ストリーミングチャットに失敗しました' }, 500);
-  }
-});
-
 const port = parseInt(process.env.PORT || '3000', 10);
 
 serve({
   fetch: app.fetch,
   port: port
-}, (info) => {
+}, async (info) => {
   console.log(`Server is running on http://localhost:${info.port}`)
   console.log(`Mastraクライアントが ${process.env.CHECK_SUBSIDY_AGENT_URL || "http://localhost:4111"} のinquiry-agentに接続されています`)
   console.log(`LINE Webhookエンドポイント: http://localhost:${info.port}/callback`)
+  console.log(`Firestore初期化: ${process.env.GCP_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || 'プロジェクトID未設定'}`)
+  
 })

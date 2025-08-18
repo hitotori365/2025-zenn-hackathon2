@@ -22,6 +22,7 @@ export interface SubsidySearchResult {
   count: number;
   summary: string;
   message: string;
+  subsidies?: SubsidyData[]; // 補助金詳細情報
 }
 
 // Repository function signatures (functional interface)

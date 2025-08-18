@@ -20,6 +20,7 @@ export const createSubsidySearchUsecase = (repository: SubsidyRepository) => {
           count: relevantSubsidies.length,
           summary: summaryText,
           message: "使えそうな補助金があります",
+          subsidies: relevantSubsidies,
         };
       } else {
         return {
