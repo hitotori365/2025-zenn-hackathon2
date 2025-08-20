@@ -2,6 +2,7 @@ import { MastraClient } from "@mastra/client-js";
 import { Client } from '@line/bot-sdk';
 import { checkMessageRelevance } from '../utils/messageRelevanceChecker';
 import { checkSubsidyFound } from '../utils/subsidyResultChecker';
+import { saveUserSession, isActiveSessionWithinTimeLimit, updateLastActivityAt } from '../utils/firestoreService';
 
 // Workflow input type
 interface LineWebhookInput {
@@ -19,6 +20,49 @@ export const handleLineWebhook = async (
   console.log(`Processing message for user ${input.userId}`);
   
   try {
+    // アクティブセッションが30秒以内かチェック
+    const hasActiveSession = await isActiveSessionWithinTimeLimit(input.userId, 30);
+    if (hasActiveSession) {
+      console.log('User has active session within 30 seconds. Transitioning to detail agent.');
+      
+      // lastActivityAtを更新
+      try {
+        await updateLastActivityAt(input.userId);
+        console.log('Updated lastActivityAt for active session');
+      } catch (error) {
+        console.error('Failed to update lastActivityAt:', error);
+        // 更新に失敗してもLINEへの返信は続行
+      }
+      
+      // 固定メッセージを返信
+      const fixedMessage = '詳細確認エージェントとのやり取りに遷移';
+      
+      if (lineClient && input.replyToken) {
+        try {
+          await lineClient.replyMessage(input.replyToken, {
+            type: 'text',
+            text: fixedMessage,
+          });
+          console.log(`Successfully sent fixed message to ${input.userId}`);
+        } catch (replyError) {
+          console.warn('Reply token expired, using push message instead');
+          await lineClient.pushMessage(input.userId, {
+            type: 'text',
+            text: fixedMessage,
+          });
+          console.log(`Successfully sent push message to ${input.userId}`);
+        }
+      } else if (lineClient) {
+        await lineClient.pushMessage(input.userId, {
+          type: 'text',
+          text: fixedMessage,
+        });
+        console.log(`Successfully sent push message to ${input.userId}`);
+      }
+      
+      return { success: true, message: fixedMessage };
+    }
+    
     // メッセージの関連性をチェック
     const relevanceCheck = await checkMessageRelevance(input.messageText);
     console.log(`Message relevance score: ${relevanceCheck.score}`);
@@ -72,6 +116,15 @@ export const handleLineWebhook = async (
     if (!subsidyFound) {
       console.log('No subsidy found. Skipping response.');
       return { success: true, message: 'No subsidy found - no response sent' };
+    }
+    
+    // Firestoreにユーザーセッションを保存
+    try {
+      await saveUserSession(input.userId);
+      console.log('User session saved to Firestore');
+    } catch (error) {
+      console.error('Failed to save user session to Firestore:', error);
+      // Firestoreの保存に失敗してもLINEへの返信は続行
     }
     
     // LINEに返信
