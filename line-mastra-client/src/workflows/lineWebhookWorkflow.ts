@@ -11,6 +11,34 @@ interface LineWebhookInput {
   replyToken?: string;
 }
 
+// LINEメッセージ送信のヘルパー関数
+const sendLineMessage = async (
+  lineClient: Client,
+  userId: string,
+  message: string,
+  replyToken?: string
+): Promise<void> => {
+  const messageObj = { type: 'text' as const, text: message };
+  
+  try {
+    if (replyToken) {
+      await lineClient.replyMessage(replyToken, messageObj);
+    } else {
+      await lineClient.pushMessage(userId, messageObj);
+    }
+    console.log(`Successfully sent message to ${userId}`);
+  } catch (error) {
+    // replyTokenが期限切れの場合はpushMessageで再試行
+    if (replyToken && error instanceof Error && error.message.includes('Invalid reply token')) {
+      console.warn('Reply token expired, using push message instead');
+      await lineClient.pushMessage(userId, messageObj);
+      console.log(`Successfully sent push message to ${userId}`);
+    } else {
+      throw error;
+    }
+  }
+};
+
 // Workflow handler function
 export const handleLineWebhook = async (
   mastraClient: MastraClient,
@@ -37,27 +65,8 @@ export const handleLineWebhook = async (
       // 固定メッセージを返信
       const fixedMessage = '詳細確認エージェントとのやり取りに遷移';
       
-      if (lineClient && input.replyToken) {
-        try {
-          await lineClient.replyMessage(input.replyToken, {
-            type: 'text',
-            text: fixedMessage,
-          });
-          console.log(`Successfully sent fixed message to ${input.userId}`);
-        } catch (replyError) {
-          console.warn('Reply token expired, using push message instead');
-          await lineClient.pushMessage(input.userId, {
-            type: 'text',
-            text: fixedMessage,
-          });
-          console.log(`Successfully sent push message to ${input.userId}`);
-        }
-      } else if (lineClient) {
-        await lineClient.pushMessage(input.userId, {
-          type: 'text',
-          text: fixedMessage,
-        });
-        console.log(`Successfully sent push message to ${input.userId}`);
+      if (lineClient) {
+        await sendLineMessage(lineClient, input.userId, fixedMessage, input.replyToken);
       }
       
       return { success: true, message: fixedMessage };
@@ -128,28 +137,8 @@ export const handleLineWebhook = async (
     }
     
     // LINEに返信
-    if (lineClient && input.replyToken) {
-      try {
-        await lineClient.replyMessage(input.replyToken, {
-          type: 'text',
-          text: responseText,
-        });
-        console.log(`Successfully sent reply message to ${input.userId}`);
-      } catch (replyError) {
-        // replyTokenが期限切れの場合はpushMessageを使用
-        console.warn('Reply token expired, using push message instead');
-        await lineClient.pushMessage(input.userId, {
-          type: 'text',
-          text: responseText,
-        });
-        console.log(`Successfully sent push message to ${input.userId}`);
-      }
-    } else if (lineClient) {
-      await lineClient.pushMessage(input.userId, {
-        type: 'text',
-        text: responseText,
-      });
-      console.log(`Successfully sent push message to ${input.userId}`);
+    if (lineClient) {
+      await sendLineMessage(lineClient, input.userId, responseText, input.replyToken);
     }
     
     return { success: true, message: responseText };
@@ -157,24 +146,10 @@ export const handleLineWebhook = async (
   } catch (error) {
     console.error('Error processing LINE message:', error);
     
-    // エラー時のメッセージ送信
     if (lineClient) {
       const errorMessage = '申し訳ございません。現在メッセージを処理できません。';
-      try {
-        if (input.replyToken) {
-          await lineClient.replyMessage(input.replyToken, {
-            type: 'text',
-            text: errorMessage,
-          });
-        } else {
-          await lineClient.pushMessage(input.userId, {
-            type: 'text',  
-            text: errorMessage,
-          });
-        }
-      } catch (sendError) {
-        console.error('Failed to send error message:', sendError);
-      }
+      await sendLineMessage(lineClient, input.userId, errorMessage, input.replyToken)
+        .catch(err => console.error('Failed to send error message:', err));
     }
     
     return { 
