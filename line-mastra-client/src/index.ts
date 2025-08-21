@@ -16,7 +16,7 @@ const firebaseApp = initializeApp({
 });
 
 // Firestoreインスタンスの取得
-const db = getFirestore(firebaseApp);
+export const db = getFirestore(firebaseApp);
 
 // ヘルスチェックエンドポイント
 app.get('/', async (c) => {

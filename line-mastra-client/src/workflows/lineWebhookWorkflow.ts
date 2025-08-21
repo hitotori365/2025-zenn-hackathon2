@@ -2,6 +2,7 @@ import { MastraClient } from "@mastra/client-js";
 import { Client } from '@line/bot-sdk';
 import { checkMessageRelevance } from '../utils/messageRelevanceChecker';
 import { checkSubsidyFound } from '../utils/subsidyResultChecker';
+import { saveUserSession, isActiveSessionWithinTimeLimit, updateLastActivityAt } from '../utils/firestoreService';
 
 // Workflow input type
 interface LineWebhookInput {
@@ -9,6 +10,34 @@ interface LineWebhookInput {
   messageText: string;
   replyToken?: string;
 }
+
+// LINEメッセージ送信のヘルパー関数
+const sendLineMessage = async (
+  lineClient: Client,
+  userId: string,
+  message: string,
+  replyToken?: string
+): Promise<void> => {
+  const messageObj = { type: 'text' as const, text: message };
+  
+  try {
+    if (replyToken) {
+      await lineClient.replyMessage(replyToken, messageObj);
+    } else {
+      await lineClient.pushMessage(userId, messageObj);
+    }
+    console.log(`Successfully sent message to ${userId}`);
+  } catch (error) {
+    // replyTokenが期限切れの場合はpushMessageで再試行
+    if (replyToken && error instanceof Error && error.message.includes('Invalid reply token')) {
+      console.warn('Reply token expired, using push message instead');
+      await lineClient.pushMessage(userId, messageObj);
+      console.log(`Successfully sent push message to ${userId}`);
+    } else {
+      throw error;
+    }
+  }
+};
 
 // Workflow handler function
 export const handleLineWebhook = async (
@@ -19,6 +48,30 @@ export const handleLineWebhook = async (
   console.log(`Processing message for user ${input.userId}`);
   
   try {
+    // アクティブセッションが30秒以内かチェック
+    const hasActiveSession = await isActiveSessionWithinTimeLimit(input.userId, 30);
+    if (hasActiveSession) {
+      console.log('User has active session within 30 seconds. Transitioning to detail agent.');
+      
+      // lastActivityAtを更新
+      try {
+        await updateLastActivityAt(input.userId);
+        console.log('Updated lastActivityAt for active session');
+      } catch (error) {
+        console.error('Failed to update lastActivityAt:', error);
+        // 更新に失敗してもLINEへの返信は続行
+      }
+      
+      // 固定メッセージを返信
+      const fixedMessage = '詳細確認エージェントとのやり取りに遷移';
+      
+      if (lineClient) {
+        await sendLineMessage(lineClient, input.userId, fixedMessage, input.replyToken);
+      }
+      
+      return { success: true, message: fixedMessage };
+    }
+    
     // メッセージの関連性をチェック
     const relevanceCheck = await checkMessageRelevance(input.messageText);
     console.log(`Message relevance score: ${relevanceCheck.score}`);
@@ -74,29 +127,18 @@ export const handleLineWebhook = async (
       return { success: true, message: 'No subsidy found - no response sent' };
     }
     
+    // Firestoreにユーザーセッションを保存
+    try {
+      await saveUserSession(input.userId);
+      console.log('User session saved to Firestore');
+    } catch (error) {
+      console.error('Failed to save user session to Firestore:', error);
+      // Firestoreの保存に失敗してもLINEへの返信は続行
+    }
+    
     // LINEに返信
-    if (lineClient && input.replyToken) {
-      try {
-        await lineClient.replyMessage(input.replyToken, {
-          type: 'text',
-          text: responseText,
-        });
-        console.log(`Successfully sent reply message to ${input.userId}`);
-      } catch (replyError) {
-        // replyTokenが期限切れの場合はpushMessageを使用
-        console.warn('Reply token expired, using push message instead');
-        await lineClient.pushMessage(input.userId, {
-          type: 'text',
-          text: responseText,
-        });
-        console.log(`Successfully sent push message to ${input.userId}`);
-      }
-    } else if (lineClient) {
-      await lineClient.pushMessage(input.userId, {
-        type: 'text',
-        text: responseText,
-      });
-      console.log(`Successfully sent push message to ${input.userId}`);
+    if (lineClient) {
+      await sendLineMessage(lineClient, input.userId, responseText, input.replyToken);
     }
     
     return { success: true, message: responseText };
@@ -104,24 +146,10 @@ export const handleLineWebhook = async (
   } catch (error) {
     console.error('Error processing LINE message:', error);
     
-    // エラー時のメッセージ送信
     if (lineClient) {
       const errorMessage = '申し訳ございません。現在メッセージを処理できません。';
-      try {
-        if (input.replyToken) {
-          await lineClient.replyMessage(input.replyToken, {
-            type: 'text',
-            text: errorMessage,
-          });
-        } else {
-          await lineClient.pushMessage(input.userId, {
-            type: 'text',  
-            text: errorMessage,
-          });
-        }
-      } catch (sendError) {
-        console.error('Failed to send error message:', sendError);
-      }
+      await sendLineMessage(lineClient, input.userId, errorMessage, input.replyToken)
+        .catch(err => console.error('Failed to send error message:', err));
     }
     
     return { 
