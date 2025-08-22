@@ -1,0 +1,210 @@
+[
+  {
+    "detail_id": "detail_001",
+    "id": "subsidy_001",
+    "name": "中小企業デジタル化補助金",
+    "summary": "中小企業のデジタル化を支援する補助金です。ITシステム導入、デジタル人材育成等を支援し、生産性向上と競争力強化を図ります。",
+    "description": "中小企業のデジタル化を促進し、生産性向上と競争力強化を図るための補助金制度です。ITシステムの導入、デジタル人材の育成、DX推進のためのコンサルティング費用などを支援します。",
+    "eligibility": {
+      "company_size": ["中小企業", "小規模事業者"],
+      "industry": ["製造業", "サービス業", "小売業", "建設業"],
+      "employee_count": "300人以下",
+      "capital": "3億円以下",
+      "requirements": [
+        "日本国内に本社を有する法人であること",
+        "税務申告を2期以上行っていること",
+        "労働保険・社会保険に適正に加入していること"
+      ]
+    },
+    "support_details": {
+      "budget_range": "50万円〜300万円",
+      "subsidy_rate": "補助対象経費の2/3以内",
+      "supported_expenses": [
+        "ITシステム・ソフトウェア導入費",
+        "デジタル人材育成費",
+        "DXコンサルティング費",
+        "クラウドサービス利用料"
+      ]
+    },
+    "application_info": {
+      "application_period": "2024年4月1日〜2024年12月28日",
+      "selection_method": "書面審査",
+      "required_documents": [
+        "申請書",
+        "事業計画書",
+        "見積書",
+        "決算書（直近2期分）"
+      ]
+    },
+    "contact": {
+      "organization": "経済産業省中小企業庁",
+      "phone": "03-3501-1511",
+      "website": "https://www.chusho.meti.go.jp/digital/"
+    }
+  },
+  {
+    "detail_id": "detail_002",
+    "id": "subsidy_002",
+    "name": "東京ベイｅＳＧプロジェクト先行プロジェクト補助金",
+    "summary": "最先端テクノロジーの社会実装を加速させ、「自然」と「便利」が融合する持続可能な都市の実現を支援する補助金です。",
+    "description": "東京ベイエリアにおいて、最先端テクノロジーを活用した持続可能な都市づくりを推進するプロジェクトを支援します。AI、IoT、5G等の技術を活用し、スマートシティの実現に向けた先行的な取り組みを対象とします。",
+    "eligibility": {
+      "company_size": ["中小企業", "大企業", "スタートアップ"],
+      "industry": ["IT・情報通信業", "製造業", "建設業", "運輸業"],
+      "requirements": [
+        "東京ベイエリアでのプロジェクト実施",
+        "最先端テクノロジーの活用",
+        "持続可能性への貢献",
+        "社会実装の可能性"
+      ]
+    },
+    "support_details": {
+      "budget_range": "500万円〜5,000万円",
+      "subsidy_rate": "補助対象経費の1/2以内",
+      "supported_expenses": [
+        "研究開発費",
+        "実証実験費",
+        "システム構築費",
+        "人件費（プロジェクト従事者分）"
+      ]
+    },
+    "application_info": {
+      "application_period": "2024年5月1日〜2024年8月31日",
+      "selection_method": "書面審査・プレゼンテーション審査",
+      "required_documents": [
+        "申請書",
+        "プロジェクト企画書",
+        "技術仕様書",
+        "予算計画書"
+      ]
+    },
+    "contact": {
+      "organization": "東京都産業労働局",
+      "phone": "03-5320-4819",
+      "website": "https://www.sangyo-rodo.metro.tokyo.lg.jp/bay-esg/"
+    }
+  },
+  {
+    "detail_id": "detail_003",
+    "id": "subsidy_003",
+    "name": "太陽光発電設備導入補助金",
+    "summary": "住宅や事業所への太陽光発電設備導入を支援し、再生可能エネルギーの普及を促進する補助金です。",
+    "description": "カーボンニュートラル実現に向けて、住宅用・事業用太陽光発電設備の導入を支援します。発電した電力の自家消費や売電により、光熱費削減と収益確保を図ることができます。",
+    "eligibility": {
+      "company_size": ["個人", "法人", "団体"],
+      "requirements": [
+        "新規設備の設置であること",
+        "設置場所が日本国内であること",
+        "系統連系が可能であること",
+        "適切な保守管理体制があること"
+      ]
+    },
+    "support_details": {
+      "budget_range": "10万円〜1,000万円",
+      "subsidy_rate": "設備費の1/3以内（住宅用）、1/4以内（事業用）",
+      "supported_expenses": [
+        "太陽光パネル購入費",
+        "パワーコンディショナー費",
+        "工事費（設置・配線）",
+        "系統連系費"
+      ]
+    },
+    "application_info": {
+      "application_period": "2024年4月1日〜2025年2月28日",
+      "selection_method": "先着順（予算上限まで）",
+      "required_documents": [
+        "申請書",
+        "設置計画書",
+        "見積書",
+        "設置場所の図面"
+      ]
+    },
+    "contact": {
+      "organization": "環境省地球環境局",
+      "phone": "03-3581-3351",
+      "website": "https://www.env.go.jp/earth/solar/"
+    }
+  },
+  {
+    "detail_id": "detail_004",
+    "id": "subsidy_004",
+    "name": "スタートアップ支援補助金",
+    "summary": "革新的なアイデアを持つスタートアップ企業の事業化を支援する補助金です。",
+    "description": "革新的な技術やビジネスモデルを持つスタートアップ企業の事業化を支援し、日本の産業競争力向上とイノベーション創出を促進します。シード期からアーリー期の企業を対象としています。",
+    "eligibility": {
+      "company_size": ["スタートアップ企業"],
+      "requirements": [
+        "設立から5年以内の企業",
+        "革新的な技術・サービスを有すること",
+        "事業化の見込みがあること",
+        "経営陣・技術陣が揃っていること"
+      ]
+    },
+    "support_details": {
+      "budget_range": "100万円〜1,500万円",
+      "subsidy_rate": "補助対象経費の2/3以内",
+      "supported_expenses": [
+        "研究開発費",
+        "人件費",
+        "設備費",
+        "マーケティング費"
+      ]
+    },
+    "application_info": {
+      "application_period": "年2回（春期・秋期）",
+      "selection_method": "書面審査・面接審査・事業計画発表",
+      "required_documents": [
+        "申請書",
+        "事業計画書",
+        "技術概要書",
+        "財務計画書"
+      ]
+    },
+    "contact": {
+      "organization": "中小企業基盤整備機構",
+      "phone": "03-5470-1521",
+      "website": "https://www.smrj.go.jp/startup/"
+    }
+  },
+  {
+    "detail_id": "detail_005",
+    "id": "subsidy_005",
+    "name": "観光業復興支援補助金",
+    "summary": "観光業の復興と発展を支援し、地域経済の活性化を図る補助金です。",
+    "description": "コロナ禍で大きな影響を受けた観光業の復興を支援し、持続可能な観光産業の構築を目指します。宿泊業、旅行業、観光関連サービス業を対象に、設備投資や人材育成、デジタル化等を支援します。",
+    "eligibility": {
+      "company_size": ["中小企業", "小規模事業者"],
+      "industry": ["宿泊業", "旅行業", "観光関連サービス業"],
+      "requirements": [
+        "観光業に従事していること",
+        "コロナ禍による売上減少があること",
+        "復興・発展に向けた具体的な計画があること"
+      ]
+    },
+    "support_details": {
+      "budget_range": "30万円〜800万円",
+      "subsidy_rate": "補助対象経費の3/4以内",
+      "supported_expenses": [
+        "施設・設備改修費",
+        "IT・デジタル化費用",
+        "人材育成・研修費",
+        "プロモーション費"
+      ]
+    },
+    "application_info": {
+      "application_period": "2024年6月1日〜2024年11月30日",
+      "selection_method": "書面審査",
+      "required_documents": [
+        "申請書",
+        "復興計画書",
+        "売上減少証明書類",
+        "見積書"
+      ]
+    },
+    "contact": {
+      "organization": "観光庁観光産業課",
+      "phone": "03-5253-8330",
+      "website": "https://www.mlit.go.jp/kankocho/recovery/"
+    }
+  }
+]
