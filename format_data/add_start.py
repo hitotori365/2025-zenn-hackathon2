@@ -1,3 +1,4 @@
+import json
 from dotenv import load_dotenv
 import os
 import pandas as pd
@@ -32,11 +33,10 @@ def summarize_url(url, llm):
         tools=[GenAITool(google_search={})],
     )
 
-    # resp.content がリストの場合は最後の要素、文字列なら空白で分割して最後の単語を取得
     if isinstance(resp.content, list):
         target = resp.content[-1]
     else:
-        target = str(resp.content).split()[-1]
+        target = str(resp.content).strip().replace('\\/', '/')
 
     print("開始:", target)
     return target
@@ -55,12 +55,18 @@ def main():
     file_path = "SubsidyDetail.json"
     formatted_df = format_data(file_path)
 
-    # URL列に対してsummarize_urlを適用して「who」列を作成
     formatted_df['start'] = formatted_df['url'].map(lambda url: summarize_url(url, llm))
 
-    # JSONとして保存
+    # JSON文字列に変換し、スラッシュのエスケープを解除する
+    output_data = formatted_df.to_dict(orient="records")
+    json_string = json.dumps(output_data, ensure_ascii=False, indent=2)
+    clean_json_string = json_string.replace('\\/', '/')
+
+    # ファイルに書き込む
     output_file = "SubsidyDetail.json"
-    formatted_df.to_json(output_file, orient="records", force_ascii=False, indent=2)
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(clean_json_string)
+
     print(f"\nJSONに保存しました: {output_file}")
 
 if __name__ == "__main__":
