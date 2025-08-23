@@ -111,3 +111,43 @@ export async function updateLastActivityAt(userId: string): Promise<void> {
     throw error;
   }
 }
+
+export async function saveSubsidyList(userId: string, subsidies: Array<{id: string, name: string}>): Promise<void> {
+  try {
+    await db.collection('userSessions').doc(userId).update({
+      'selectedSubsidy.selectedFrom': subsidies,
+      'subsidyMode.lastActivityAt': new Date(),
+    });
+    console.log(`Saved subsidy list for userId: ${userId}`, subsidies);
+  } catch (error) {
+    console.error('Error saving subsidy list:', error);
+    throw error;
+  }
+}
+
+export async function updateSubsidyMode(userId: string, isActive: boolean): Promise<void> {
+  try {
+    await db.collection('userSessions').doc(userId).update({
+      'subsidyMode.isActive': isActive,
+      'subsidyMode.lastActivityAt': new Date(),
+    });
+    console.log(`Updated subsidy mode for userId: ${userId}, isActive: ${isActive}`);
+  } catch (error) {
+    console.error('Error updating subsidy mode:', error);
+    throw error;
+  }
+}
+
+export async function saveSelectedSubsidy(userId: string, selectedSubsidy: {id: string, name: string}): Promise<void> {
+  try {
+    await db.collection('userSessions').doc(userId).update({
+      'selectedSubsidy.subsidyId': selectedSubsidy.id,
+      'selectedSubsidy.subsidyName': selectedSubsidy.name,
+      'subsidyMode.lastActivityAt': new Date(),
+    });
+    console.log(`Saved selected subsidy for userId: ${userId}`, selectedSubsidy);
+  } catch (error) {
+    console.error('Error saving selected subsidy:', error);
+    throw error;
+  }
+}
