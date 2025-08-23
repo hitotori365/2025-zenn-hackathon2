@@ -34,11 +34,10 @@ export const createAgent = (
 
 入力データの想定フォーマット：
 - subsidyId: 補助金ID（例: "subsidy_001"）
-- userAttributes: ユーザー属性
-  - userId: ユーザーID
-  - companySize: 企業規模（個人、小規模事業者、中小企業、大企業、スタートアップ）
-  - industry: 業界
-  - その他の属性情報
+- userAttributes: ユーザー属性（文字列形式で全ての属性情報を含む）
+- requestType: リクエストタイプ（"details", "eligibility", "application", "contact"等）
+
+userAttributesの文字列を解析し、userId、companySize、industry、employeeCount、capital等の属性情報を抽出してオブジェクト形式に変換してツールに渡してください。文字列から抽出できない属性は省略して構いません。
 
 回答時の注意点：
 - 日本語で回答してください
