@@ -4,30 +4,30 @@
     "submit":"計画調整部プロジェクト推進課",
     "contactInformation":"03-5388-2131",
     "url":"https:\/\/www.tokyobayesg.metro.tokyo.lg.jp\/priorityprojects\/",
-    "who":"中小企業",
-    "amount":"申し訳ありませんが、提供されたURLから直接補助金の予算額を特定できませんでした。提示されたURLは、東京都ベイエリアにおけるESG投資促進事業に関するもので、プロジェクトの概要や戦略が記載されていますが、具体的な予算額は明記されていません。\n\nただし、関連情報として、東京都全体の令和7年度予算案に関する情報が見つかりました。これによると、一般会計の予算規模は前年度に比べて7,050億円の増となっています。しかし、これは東京都全体の予算であり、特定の補助金に関するものではありません。\n\nもし特定の補助金に関する予算額を知りたい場合は、その補助金の詳細な情報が記載された別のURLを提供していただくか、または東京都の関連部署に直接お問い合わせいただくことをお勧めします。",
-    "start":"令和7年度",
-    "end":"令和7年8月8日"
+    "who":"不明",
+    "amount":"不明",
+    "start":"2025\/07\/25",
+    "end":"不明"
   },
   {
     "id":"subsidy_002",
     "submit":"子供政策連携室企画調整部企画調整課",
     "contactInformation":"03-5388-3812",
     "url":"https:\/\/www.kodomoseisaku.metro.tokyo.lg.jp\/jigyo\/suisin-team\/kodomonoegaonitsunagaruasobinosokushin",
-    "who":"団体",
-    "amount":"情報が見つかりませんでした。",
+    "who":"NPO法人",
+    "amount":"不明",
     "start":"不明",
-    "end":"確認できませんでした。申し訳ありません。"
+    "end":"不明"
   },
   {
     "id":"subsidy_011",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5388-2163",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/nurturing-players\/fintech\/post-35\/",
-    "who":"フィンテック企業等",
-    "amount":"1250万円",
+    "who":"不明",
+    "amount":"不明",
     "start":"2024\/04\/30",
-    "end":"確認できませんでした。申し訳ありません。"
+    "end":"不明"
   },
   {
     "id":"subsidy_012",
@@ -36,38 +36,38 @@
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/nurturing-players\/fintech\/security-token",
     "who":"事業者",
     "amount":"500万円",
-    "start":"不明",
-    "end":"2027\/01\/31"
+    "start":"令和5年5月31日",
+    "end":"不明"
   },
   {
     "id":"subsidy_014",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5320-6274",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/contributing-solving-socialissues\/sustainable-finance\/finance-week",
-    "who":"中小企業",
-    "amount":"40,000千円",
-    "start":"2025\/07\/11",
-    "end":"情報が見つかりませんでした。"
+    "who":"不明",
+    "amount":"4000万円",
+    "start":"不明",
+    "end":"不明"
   },
   {
     "id":"subsidy_015",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5388-2163",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/nurturing-players\/asset-management\/post-10\/",
-    "who":"資産運用業者",
-    "amount":"申し訳ありませんが、提供されたURLから直接補助金額を特定できませんでした。",
+    "who":"不明",
+    "amount":"1250万円",
     "start":"不明",
-    "end":"令和7年2月28日"
+    "end":"不明"
   },
   {
     "id":"subsidy_019",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5000-7005",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/green-finance\/green-subsidy",
-    "who":"外国企業",
+    "who":"企業",
     "amount":"5000万円",
-    "start":"確認できませんでした。申し訳ありません。",
-    "end":"確認できませんでした。申し訳ありません。"
+    "start":"不明",
+    "end":"不明"
   },
   {
     "id":"subsidy_020",
@@ -76,27 +76,27 @@
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/green-finance\/sustainability-management",
     "who":"中小企業",
     "amount":"5000万円",
-    "start":"未定",
-    "end":"令和7年3月31日"
+    "start":"不明",
+    "end":"不明"
   },
   {
     "id":"subsidy_024",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5000-7009",
     "url":"https:\/\/www.investtokyo.metro.tokyo.lg.jp\/jp\/oursupports\/fcs.html",
-    "who":"外国企業.",
-    "amount":"複数の補助金に関する情報が見つかりました。\n\n*   **最大5000万円:** グリーンファイナンスに取り組む外資金融機関の東京進出を支援する「グリーンファイナンス外国企業進出支援事業」において、年間最大5000万円の補助金が提供される場合があります。\n*   **最大750万円または1,250万円:** 金融系外国企業が都内に設立した日本法人等に対し、人材採用経費や専門家へのコンサルティング経費等の一部を補助する制度があり、拠点設立年度には最大750万円（その他）または1,250万円（資産運用業者（ライセンス取得））が補助されます。\n*   **最大1,500万円または2,000万円:** 拠点設立2、3年度目には、最大1,500万円（その他）または2,000万円（資産運用業者（ライセンス取得））が補助されます。\n*   **上限2,000万円:** 金融機関等と連携した海外企業誘致促進事業では、上限金額2,000万円の補助金があります。\n\nこれらの情報源から、補助金の予算額として複数の金額が考えられます。\n\n5000万円",
-    "start":"令和7年5月16日",
-    "end":"2025\/07\/18"
+    "who":"日本法人",
+    "amount":"5000万円",
+    "start":"不明",
+    "end":"令和7年7月18日"
   },
   {
     "id":"subsidy_025",
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5000-7009",
     "url":"https:\/\/www.investtokyo.metro.tokyo.lg.jp\/jp\/oursupports\/gx-subsidy.html",
-    "who":"中小企業者",
-    "amount":"1億2500万円",
-    "start":"令和5年7月14日",
+    "who":"中小企業",
+    "amount":"不明",
+    "start":"令和7年5月16日",
     "end":"2025\/07\/18"
   }
 ]
