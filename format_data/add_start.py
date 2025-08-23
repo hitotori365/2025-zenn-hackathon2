@@ -38,8 +38,10 @@ def summarize_url(url, llm):
     else:
         target = str(resp.content).split()[-1]
 
-    print("開始:", target)
-    return target
+    #バックスラッシュ（\）対策
+    clean_target = target.replace('\\', '')
+    print("開始:", clean_target)
+    return clean_target
 
 def main():
     load_dotenv()

@@ -4,9 +4,9 @@
     "submit":"計画調整部プロジェクト推進課",
     "contactInformation":"03-5388-2131",
     "url":"https:\/\/www.tokyobayesg.metro.tokyo.lg.jp\/priorityprojects\/",
-    "who":"不明",
-    "amount":"不明",
-    "start":"2025\/07\/25",
+    "who":"中小企業者",
+    "amount":"8000万円",
+    "start":"令和7年度",
     "end":"不明"
   },
   {
@@ -27,7 +27,7 @@
     "who":"不明",
     "amount":"不明",
     "start":"2024\/04\/30",
-    "end":"不明"
+    "end":"2025\/01\/31"
   },
   {
     "id":"subsidy_012",
@@ -36,7 +36,7 @@
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/nurturing-players\/fintech\/security-token",
     "who":"事業者",
     "amount":"500万円",
-    "start":"令和5年5月31日",
+    "start":"令和6年4月30日",
     "end":"不明"
   },
   {
@@ -45,7 +45,7 @@
     "contactInformation":"03-5320-6274",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/contributing-solving-socialissues\/sustainable-finance\/finance-week",
     "who":"不明",
-    "amount":"4000万円",
+    "amount":"不明",
     "start":"不明",
     "end":"不明"
   },
@@ -55,7 +55,7 @@
     "contactInformation":"03-5388-2163",
     "url":"https:\/\/www.startupandglobalfinancialcity.metro.tokyo.lg.jp\/gfct\/initiatives\/nurturing-players\/asset-management\/post-10\/",
     "who":"不明",
-    "amount":"1250万円",
+    "amount":"不明",
     "start":"不明",
     "end":"不明"
   },
@@ -84,10 +84,10 @@
     "submit":"スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
     "contactInformation":"03-5000-7009",
     "url":"https:\/\/www.investtokyo.metro.tokyo.lg.jp\/jp\/oursupports\/fcs.html",
-    "who":"日本法人",
-    "amount":"5000万円",
-    "start":"不明",
-    "end":"令和7年7月18日"
+    "who":"外国企業",
+    "amount":"不明",
+    "start":"令和7年5月16日",
+    "end":"令和7年度"
   },
   {
     "id":"subsidy_025",
@@ -95,8 +95,8 @@
     "contactInformation":"03-5000-7009",
     "url":"https:\/\/www.investtokyo.metro.tokyo.lg.jp\/jp\/oursupports\/gx-subsidy.html",
     "who":"中小企業",
-    "amount":"不明",
-    "start":"令和7年5月16日",
-    "end":"2025\/07\/18"
+    "amount":"5000万円",
+    "start":"2025\/05\/16",
+    "end":"不明"
   }
 ]
