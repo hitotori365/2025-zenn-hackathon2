@@ -35,7 +35,7 @@ const readCSVData = async (csvFilePath: string): Promise<RawCSVData[]> => {
     }
 
     fs.createReadStream(csvFilePath)
-      .pipe(csv())
+      .pipe(csv({ separator: '\t' }))
       .on("data", (data: RawCSVData) => results.push(data))
       .on("end", () => resolve(results))
       .on("error", (error) => reject(error));
