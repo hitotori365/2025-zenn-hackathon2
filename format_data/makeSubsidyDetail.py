@@ -1,29 +1,49 @@
 import pandas as pd
+import json
+import os
 
-# 入力ファイル名と出力ファイル名
-input_csv = "original_data\hojokin2024.csv"
-output_json = "SubsidyDetail.json"
+# 入力ファイル名
+input_csv = r"original_data\hojokin2024.csv"
+
+# 出力フォルダ
+output_dir = "subsidy_json"
+os.makedirs(output_dir, exist_ok=True)
 
 # CSV読み込み
-df = pd.read_csv(input_csv, encoding="utf-8")#cp932
+df = pd.read_csv(input_csv, encoding="utf-8")  # cp932 に変える場合あり
 
-# 必要な列だけ抽出（存在しない場合はエラーを防ぐため）
+# 必要な列チェック
 required_columns = ["補助金名", "補助金の概要", "所管部署", "問い合わせ先", "各局HPリンク"]
 for col in required_columns:
     if col not in df.columns:
         raise ValueError(f"列 '{col}' がCSVに見つかりません")
 
-# 新しいデータフレーム作成
-new_df = pd.DataFrame({
-    "id": ["subsidy_" + str(i+1).zfill(3) for i in range(len(df))],
-    "submit": df["所管部署"],
-    "contactInformation": df["問い合わせ先"],
-    "url": df["各局HPリンク"]
-})
+# 各行ごとに保存
+for j in range(len(df)):
+    row = df.iloc[j]
 
-# who, amount, start, end, note を空欄で追加
-for col in ["who", "amount", "start", "end"]:
-    new_df[col] = ""   # 空の列を追加
+    # urlが空文字やNaNなら文字列 "NaN" にする
+    url = row["各局HPリンク"]
+    if pd.isna(url) or url == "":
+        url = "NaN"
 
-# JSONとして保存（UTF-8で整形出力）
-new_df.to_json(output_json, orient="records", force_ascii=False, indent=2)
+    # 1行分を辞書に変換
+    data = {
+        "id": f"subsidy_{j+1:03}",
+        "submit": row["所管部署"],
+        "contactInformation": row["問い合わせ先"],
+        "url": url,
+        "who": "",
+        "amount": "",
+        "start": "",
+        "end": ""
+    }
+
+    # 出力ファイル名
+    output_json = os.path.join(output_dir, f"subsidy_{j+1:03}.json")
+
+    # JSON保存（要素だけ）
+    with open(output_json, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"個別JSONファイルを {output_dir} に保存しました。")
