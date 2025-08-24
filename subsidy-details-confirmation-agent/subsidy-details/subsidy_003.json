@@ -1,0 +1,45 @@
+{
+  "detail_id": "detail_003",
+  "id": "subsidy_003",
+  "name": "太陽光発電設備導入補助金",
+  "summary": "住宅や事業所への太陽光発電設備導入を支援し、再生可能エネルギーの普及を促進する補助金です。",
+  "description": "カーボンニュートラル実現に向けて、住宅用・事業用太陽光発電設備の導入を支援します。発電した電力の自家消費や売電により、光熱費削減と収益確保を図ることができます。",
+  "eligibility": {
+    "company_size": [
+      "個人",
+      "法人",
+      "団体"
+    ],
+    "requirements": [
+      "新規設備の設置であること",
+      "設置場所が日本国内であること",
+      "系統連系が可能であること",
+      "適切な保守管理体制があること"
+    ]
+  },
+  "support_details": {
+    "budget_range": "10万円〜1,000万円",
+    "subsidy_rate": "設備費の1/3以内（住宅用）、1/4以内（事業用）",
+    "supported_expenses": [
+      "太陽光パネル購入費",
+      "パワーコンディショナー費",
+      "工事費（設置・配線）",
+      "系統連系費"
+    ]
+  },
+  "application_info": {
+    "application_period": "2024年4月1日〜2025年2月28日",
+    "selection_method": "先着順（予算上限まで）",
+    "required_documents": [
+      "申請書",
+      "設置計画書",
+      "見積書",
+      "設置場所の図面"
+    ]
+  },
+  "contact": {
+    "organization": "環境省地球環境局",
+    "phone": "03-3581-3351",
+    "website": "https://www.env.go.jp/earth/solar/"
+  }
+}

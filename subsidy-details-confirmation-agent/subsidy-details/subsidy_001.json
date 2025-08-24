@@ -1,0 +1,51 @@
+{
+  "detail_id": "detail_001",
+  "id": "subsidy_001",
+  "name": "中小企業デジタル化補助金",
+  "summary": "中小企業のデジタル化を支援する補助金です。ITシステム導入、デジタル人材育成等を支援し、生産性向上と競争力強化を図ります。",
+  "description": "中小企業のデジタル化を促進し、生産性向上と競争力強化を図るための補助金制度です。ITシステムの導入、デジタル人材の育成、DX推進のためのコンサルティング費用などを支援します。",
+  "eligibility": {
+    "company_size": [
+      "中小企業",
+      "小規模事業者"
+    ],
+    "industry": [
+      "製造業",
+      "サービス業",
+      "小売業",
+      "建設業"
+    ],
+    "employee_count": "300人以下",
+    "capital": "3億円以下",
+    "requirements": [
+      "日本国内に本社を有する法人であること",
+      "税務申告を2期以上行っていること",
+      "労働保険・社会保険に適正に加入していること"
+    ]
+  },
+  "support_details": {
+    "budget_range": "50万円〜300万円",
+    "subsidy_rate": "補助対象経費の2/3以内",
+    "supported_expenses": [
+      "ITシステム・ソフトウェア導入費",
+      "デジタル人材育成費",
+      "DXコンサルティング費",
+      "クラウドサービス利用料"
+    ]
+  },
+  "application_info": {
+    "application_period": "2024年4月1日〜2024年12月28日",
+    "selection_method": "書面審査",
+    "required_documents": [
+      "申請書",
+      "事業計画書",
+      "見積書",
+      "決算書（直近2期分）"
+    ]
+  },
+  "contact": {
+    "organization": "経済産業省中小企業庁",
+    "phone": "03-3501-1511",
+    "website": "https://www.chusho.meti.go.jp/digital/"
+  }
+}
