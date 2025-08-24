@@ -42,7 +42,7 @@ export const createAgent = (
 
 【重要】あなたは補助金一覧確認エージェントです。詳細な相談や申請方法の案内は、別の補助金詳細確認エージェントが担当します。
 `,
-    model: google("gemini-2.5-pro"),
+    model: google("gemini-2.0-flash"),
     tools: { searchSubsidy: searchTools },
     memory: new Memory({
       storage: new LibSQLStore({

@@ -48,7 +48,7 @@ userAttributesの文字列を解析し、userId、companySize、industry、emplo
 
 【重要】このエージェントはmastraクライアントからの構造化されたデータを処理し、LINEユーザーに最適化された回答を生成することが主要な役割です。
 `,
-    model: google("gemini-2.5-pro"),
+    model: google("gemini-2.0-flash"),
     tools: {
       subsidyDetails: detailsTool,
       messageGenerator: messageTool,

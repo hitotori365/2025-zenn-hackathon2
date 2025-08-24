@@ -13,7 +13,7 @@ export const config = {
   
   // Agent configuration
   agent: {
-    model: "gemini-2.5-pro",
+    model: "gemini-2.0-flash",
     memoryUrl: "file:../mastra.db",
   },
 };
