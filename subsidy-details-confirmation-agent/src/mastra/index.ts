@@ -10,22 +10,22 @@ import { createMessageGenerationUsecase } from "./usecase/generateMessageUsecase
 import { config } from "./config/config";
 
 // Factory function to create repository based on environment
-const createRepository = (dataSource: string, jsonPath: string) => {
+const createRepository = (dataSource: string, jsonDirectory: string) => {
   switch (dataSource) {
     case "json":
-      return createJSONSubsidyDetailsRepository(jsonPath);
+      return createJSONSubsidyDetailsRepository(jsonDirectory);
     case "db":
       // Future: return createDatabaseSubsidyDetailsRepository();
       throw new Error("Database repository not implemented yet");
     default:
-      return createJSONSubsidyDetailsRepository(jsonPath);
+      return createJSONSubsidyDetailsRepository(jsonDirectory);
   }
 };
 
 // Initialize repository and usecases with functional dependency injection
 const subsidyDetailsRepository = createRepository(
   config.dataSource,
-  config.jsonPath
+  config.jsonDirectory
 );
 const subsidyDetailsUsecase = createSubsidyDetailsUsecase(
   subsidyDetailsRepository

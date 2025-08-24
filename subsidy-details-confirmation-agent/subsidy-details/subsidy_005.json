@@ -1,0 +1,48 @@
+{
+  "detail_id": "detail_005",
+  "id": "subsidy_005",
+  "name": "観光業復興支援補助金",
+  "summary": "観光業の復興と発展を支援し、地域経済の活性化を図る補助金です。",
+  "description": "コロナ禍で大きな影響を受けた観光業の復興を支援し、持続可能な観光産業の構築を目指します。宿泊業、旅行業、観光関連サービス業を対象に、設備投資や人材育成、デジタル化等を支援します。",
+  "eligibility": {
+    "company_size": [
+      "中小企業",
+      "小規模事業者"
+    ],
+    "industry": [
+      "宿泊業",
+      "旅行業",
+      "観光関連サービス業"
+    ],
+    "requirements": [
+      "観光業に従事していること",
+      "コロナ禍による売上減少があること",
+      "復興・発展に向けた具体的な計画があること"
+    ]
+  },
+  "support_details": {
+    "budget_range": "30万円〜800万円",
+    "subsidy_rate": "補助対象経費の3/4以内",
+    "supported_expenses": [
+      "施設・設備改修費",
+      "IT・デジタル化費用",
+      "人材育成・研修費",
+      "プロモーション費"
+    ]
+  },
+  "application_info": {
+    "application_period": "2024年6月1日〜2024年11月30日",
+    "selection_method": "書面審査",
+    "required_documents": [
+      "申請書",
+      "復興計画書",
+      "売上減少証明書類",
+      "見積書"
+    ]
+  },
+  "contact": {
+    "organization": "観光庁観光産業課",
+    "phone": "03-5253-8330",
+    "website": "https://www.mlit.go.jp/kankocho/recovery/"
+  }
+}

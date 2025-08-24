@@ -1,0 +1,51 @@
+{
+  "detail_id": "detail_002",
+  "id": "subsidy_002",
+  "name": "東京ベイｅＳＧプロジェクト先行プロジェクト補助金",
+  "summary": "最先端テクノロジーの社会実装を加速させ、「自然」と「便利」が融合する持続可能な都市の実現を支援する補助金です。",
+  "description": "東京ベイエリアにおいて、最先端テクノロジーを活用した持続可能な都市づくりを推進するプロジェクトを支援します。AI、IoT、5G等の技術を活用し、スマートシティの実現に向けた先行的な取り組みを対象とします。",
+  "eligibility": {
+    "company_size": [
+      "中小企業",
+      "大企業",
+      "スタートアップ"
+    ],
+    "industry": [
+      "IT・情報通信業",
+      "製造業",
+      "建設業",
+      "運輸業"
+    ],
+    "requirements": [
+      "東京ベイエリアでのプロジェクト実施",
+      "最先端テクノロジーの活用",
+      "持続可能性への貢献",
+      "社会実装の可能性"
+    ]
+  },
+  "support_details": {
+    "budget_range": "500万円〜5,000万円",
+    "subsidy_rate": "補助対象経費の1/2以内",
+    "supported_expenses": [
+      "研究開発費",
+      "実証実験費",
+      "システム構築費",
+      "人件費（プロジェクト従事者分）"
+    ]
+  },
+  "application_info": {
+    "application_period": "2024年5月1日〜2024年8月31日",
+    "selection_method": "書面審査・プレゼンテーション審査",
+    "required_documents": [
+      "申請書",
+      "プロジェクト企画書",
+      "技術仕様書",
+      "予算計画書"
+    ]
+  },
+  "contact": {
+    "organization": "東京都産業労働局",
+    "phone": "03-5320-4819",
+    "website": "https://www.sangyo-rodo.metro.tokyo.lg.jp/bay-esg/"
+  }
+}

@@ -3,8 +3,8 @@ export const config = {
   // Data source for subsidy details (json is the primary source)
   dataSource: (process.env.SUBSIDY_DATA_SOURCE || "json") as "json" | "db",
   
-  // Path to the subsidy details JSON file
-  jsonPath: process.env.SUBSIDY_DETAILS_JSON_PATH || "./subsidy-details.json",
+  // Directory path containing subsidy details JSON files
+  jsonDirectory: process.env.SUBSIDY_DETAILS_JSON_DIR || "./subsidy-details",
   
   // Database configuration (for future use)
   database: {

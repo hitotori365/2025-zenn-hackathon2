@@ -1,0 +1,43 @@
+{
+  "detail_id": "detail_004",
+  "id": "subsidy_004",
+  "name": "スタートアップ支援補助金",
+  "summary": "革新的なアイデアを持つスタートアップ企業の事業化を支援する補助金です。",
+  "description": "革新的な技術やビジネスモデルを持つスタートアップ企業の事業化を支援し、日本の産業競争力向上とイノベーション創出を促進します。シード期からアーリー期の企業を対象としています。",
+  "eligibility": {
+    "company_size": [
+      "スタートアップ企業"
+    ],
+    "requirements": [
+      "設立から5年以内の企業",
+      "革新的な技術・サービスを有すること",
+      "事業化の見込みがあること",
+      "経営陣・技術陣が揃っていること"
+    ]
+  },
+  "support_details": {
+    "budget_range": "100万円〜1,500万円",
+    "subsidy_rate": "補助対象経費の2/3以内",
+    "supported_expenses": [
+      "研究開発費",
+      "人件費",
+      "設備費",
+      "マーケティング費"
+    ]
+  },
+  "application_info": {
+    "application_period": "年2回（春期・秋期）",
+    "selection_method": "書面審査・面接審査・事業計画発表",
+    "required_documents": [
+      "申請書",
+      "事業計画書",
+      "技術概要書",
+      "財務計画書"
+    ]
+  },
+  "contact": {
+    "organization": "中小企業基盤整備機構",
+    "phone": "03-5470-1521",
+    "website": "https://www.smrj.go.jp/startup/"
+  }
+}
