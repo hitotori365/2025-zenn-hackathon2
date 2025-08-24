@@ -5,7 +5,7 @@ import { MastraClient } from "@mastra/client-js";
 import { Client, validateSignature } from '@line/bot-sdk';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { handleLineWebhook } from './workflows/lineWebhookWorkflow';
+import { handleLineWebhook, handleLinePostback } from './workflows/lineWebhookWorkflow';
 
 const app = new Hono()
 
@@ -91,26 +91,32 @@ app.post('/callback', async (c) => {
 
     // LINE Webhookイベントを処理（workflowを使用）
     const promises = jsonBody.events.map(async (event: any) => {
-      // テキストメッセージ以外は無視
-      if (event.type !== 'message' || event.message.type !== 'text') {
-        return;
-      }
-      
       const userId = event.source?.userId;
       if (!userId) {
         console.error("userId not found in the event");
         return;
       }
       
-      // ワークフロー処理を実行
+      // イベントタイプによって処理を分岐
       try {
-        await handleLineWebhook(client, lineClient, {
-          userId: userId,
-          messageText: event.message.text,
-          replyToken: event.replyToken,
-        });
+        if (event.type === 'message' && event.message.type === 'text') {
+          // テキストメッセージの処理
+          await handleLineWebhook(client, lineClient, {
+            userId: userId,
+            messageText: event.message.text,
+            replyToken: event.replyToken,
+          });
+        } else if (event.type === 'postback') {
+          // Postbackイベントの処理
+          await handleLinePostback(client, lineClient, {
+            userId: userId,
+            data: event.postback.data,
+            replyToken: event.replyToken,
+          });
+        }
+        // その他のイベントタイプは無視
       } catch (error) {
-        console.error('Error handling LINE webhook:', error);
+        console.error('Error handling LINE event:', error);
       }
     });
     

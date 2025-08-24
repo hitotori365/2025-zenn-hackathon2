@@ -18,6 +18,11 @@ export interface VectorSearchResult {
   similarity: number;
 }
 
+// 上位N件の検索結果を返す型
+export interface TopNSearchResults {
+  results: VectorSearchResult[];
+}
+
 // コサイン類似度計算関数
 const cosineSimilarity = (a: number[], b: number[]): number => {
   if (a.length !== b.length) {
@@ -70,9 +75,9 @@ const loadSubsidyData = async (): Promise<SubsidyData[]> => {
   });
 };
 
-// メッセージからベクトル検索を実行する関数
-export async function performVectorSearch(messageText: string): Promise<VectorSearchResult> {
-  console.log('Generating embedding for user message with Gemini API...');
+// メッセージからベクトル検索を実行する関数（上位N件を返す）
+export async function performVectorSearchTopN(messageText: string, topN: number = 3): Promise<TopNSearchResults> {
+  console.log(`Generating embedding for user message with Gemini API... (top ${topN})`);
   
   const genai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -100,10 +105,8 @@ export async function performVectorSearch(messageText: string): Promise<VectorSe
   console.log('Loading subsidy data from CSV...');
   const subsidyData = await loadSubsidyData();
   
-  // コサイン類似度を計算して最も関連する補助金を見つける
-  let maxSimilarity = -1;
-  let mostRelevantSubsidy = '';
-  let mostRelevantSubsidyId = '';
+  // 全ての補助金との類似度を計算
+  const similarities: VectorSearchResult[] = [];
   
   for (const subsidy of subsidyData) {
     // 次元数が異なる場合はスキップまたはエラーログ
@@ -115,18 +118,30 @@ export async function performVectorSearch(messageText: string): Promise<VectorSe
     const similarity = cosineSimilarity(embedding, subsidy.embedding);
     console.log(`Similarity with "${subsidy.name}": ${similarity.toFixed(4)}`);
     
-    if (similarity > maxSimilarity) {
-      maxSimilarity = similarity;
-      mostRelevantSubsidy = subsidy.name;
-      mostRelevantSubsidyId = subsidy.id;
-    }
+    similarities.push({
+      subsidyId: subsidy.id,
+      subsidyName: subsidy.name,
+      similarity: similarity
+    });
   }
   
-  console.log(`Most relevant subsidy: ${mostRelevantSubsidy} (ID: ${mostRelevantSubsidyId}, similarity: ${maxSimilarity.toFixed(4)})`);
+  // 類似度でソートして上位N件を取得
+  const topResults = similarities
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, topN);
+  
+  console.log(`Top ${topN} results:`);
+  topResults.forEach((result, index) => {
+    console.log(`${index + 1}. ${result.subsidyName} (ID: ${result.subsidyId}, similarity: ${result.similarity.toFixed(4)})`);
+  });
   
   return {
-    subsidyId: mostRelevantSubsidyId,
-    subsidyName: mostRelevantSubsidy,
-    similarity: maxSimilarity
+    results: topResults
   };
+}
+
+// 後方互換性のために既存の関数も残しておく
+export async function performVectorSearch(messageText: string): Promise<VectorSearchResult> {
+  const topNResults = await performVectorSearchTopN(messageText, 1);
+  return topNResults.results[0];
 }
