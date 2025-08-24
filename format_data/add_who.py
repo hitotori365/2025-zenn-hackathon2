@@ -1,14 +1,9 @@
 from dotenv import load_dotenv
 import os
-import pandas as pd
+import glob
+import json
 from langchain_google_genai import ChatGoogleGenerativeAI
 from google.ai.generativelanguage_v1beta.types import Tool as GenAITool
-
-def format_data(file_path: str) -> pd.DataFrame:
-    # JSON読み込み
-    data = pd.read_json(file_path, encoding="utf-8")
-    data = data[data['url'].notna()]
-    return data.head(10)
 
 def summarize_url(url, llm):
     print(f"\n--- {url} ---")
@@ -20,22 +15,18 @@ def summarize_url(url, llm):
     ##条件
     出力は1単語のみとすること。
     出力形式は、「中小企業」、「法人」、「個人事業主」、「NPO法人」 のように、利用対象を明確に示す単語とします。
-    もし情報を見つけられなかったり記載がなかったりする場合は相槌などは打たず、必ず「不明」の二文字だけを出力してください。
+    もし情報を見つけられなかったり記載がなかったりする場合は必ず「不明」と出力してください。
     説明文や補足、相槌は一切禁止です。
 
     ##入力
     {url}
-
-    
-    ##出力
-    （例：中小企業、個人事業主、不明）
     """
     resp = llm.invoke(
         query,
         tools=[GenAITool(google_search={})],
     )
 
-    # resp.content がリストの場合は最後の要素、文字列なら空白で分割して最後の単語を取得
+    # resp.content がリストの場合は最後の要素、文字列なら空白で最後の単語
     if isinstance(resp.content, list):
         target = resp.content[-1]
     else:
@@ -55,16 +46,24 @@ def main():
     os.environ["GOOGLE_API_KEY"] = api_key
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
-    file_path = "SubsidyDetail.json"
-    formatted_df = format_data(file_path)
+    # subsidy_json フォルダ内のすべてのJSONを取得
+    folder_path = "subsidy_json"
+    files = sorted(glob.glob(os.path.join(folder_path, "subsidy_*.json")))
 
-    # URL列に対してsummarize_urlを適用して「who」列を作成
-    formatted_df['who'] = formatted_df['url'].map(lambda url: summarize_url(url, llm))
+    for file_path in files:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-    # JSONとして保存
-    output_file = "SubsidyDetail.json"
-    formatted_df.to_json(output_file, orient="records", force_ascii=False, indent=2)
-    print(f"\nJSONに保存しました: {output_file}")
+        url = data.get("url", "")
+        if url in ["", "NaN", None]:
+            data["who"] = "不明"
+        else:
+            # URL がある場合のみ LLM に問い合わせ
+            data["who"] = summarize_url(url, llm)
+
+        # 元のファイルに上書き保存
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()

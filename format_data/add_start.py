@@ -1,15 +1,9 @@
-import json
 from dotenv import load_dotenv
 import os
-import pandas as pd
+import glob
+import json
 from langchain_google_genai import ChatGoogleGenerativeAI
 from google.ai.generativelanguage_v1beta.types import Tool as GenAITool
-
-def format_data(file_path: str) -> pd.DataFrame:
-    # JSON読み込み
-    data = pd.read_json(file_path, encoding="utf-8")
-    data = data[data['url'].notna()]
-    return data.head(10)
 
 def summarize_url(url, llm):
     print(f"\n--- {url} ---")
@@ -33,12 +27,13 @@ def summarize_url(url, llm):
         tools=[GenAITool(google_search={})],
     )
 
+    # resp.content がリストの場合は最後の要素、文字列なら空白で最後の単語
     if isinstance(resp.content, list):
         target = resp.content[-1]
     else:
-        target = str(resp.content).strip().replace('\\/', '/')
+        target = str(resp.content).split()[-1]
 
-    print("開始:", target)
+    print("開始日:", target)
     return target
 
 def main():
@@ -52,22 +47,24 @@ def main():
     os.environ["GOOGLE_API_KEY"] = api_key
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
-    file_path = "SubsidyDetail.json"
-    formatted_df = format_data(file_path)
+    # subsidy_json フォルダ内のすべてのJSONを取得
+    folder_path = "subsidy_json"
+    files = sorted(glob.glob(os.path.join(folder_path, "subsidy_*.json")))
 
-    formatted_df['start'] = formatted_df['url'].map(lambda url: summarize_url(url, llm))
+    for file_path in files:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-    # JSON文字列に変換し、スラッシュのエスケープを解除する
-    output_data = formatted_df.to_dict(orient="records")
-    json_string = json.dumps(output_data, ensure_ascii=False, indent=2)
-    clean_json_string = json_string.replace('\\/', '/')
+        url = data.get("url", "")
+        if url in ["", "NaN", None]:
+            data["start"] = "不明"
+        else:
+            # URL がある場合のみ LLM に問い合わせ
+            data["start"] = summarize_url(url, llm)
 
-    # ファイルに書き込む
-    output_file = "SubsidyDetail.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(clean_json_string)
-
-    print(f"\nJSONに保存しました: {output_file}")
+        # 元のファイルに上書き保存
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()
