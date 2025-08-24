@@ -1,0 +1,102 @@
+[
+  {
+    "id": "subsidy_001",
+    "submit": "計画調整部プロジェクト推進課",
+    "contactInformation": "03-5388-2131",
+    "url": "https://www.tokyobayesg.metro.tokyo.lg.jp/priorityprojects/",
+    "who": "中小企業、大企業、中堅企業、小規模企業者",
+    "amount": "8000万円",
+    "start": "令和7年度",
+    "end": "令和7年8月29日"
+  },
+  {
+    "id": "subsidy_002",
+    "submit": "子供政策連携室企画調整部企画調整課",
+    "contactInformation": "03-5388-3812",
+    "url": "https://www.kodomoseisaku.metro.tokyo.lg.jp/jigyo/suisin-team/kodomonoegaonitsunagaruasobinosokushin",
+    "who": "NPO法人",
+    "amount": "不明",
+    "start": "不明",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_011",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5388-2163",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/nurturing-players/fintech/post-35/",
+    "who": "不明",
+    "amount": "不明",
+    "start": "不明",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_012",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5388-2163",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/nurturing-players/fintech/security-token",
+    "who": "事業者",
+    "amount": "500万円",
+    "start": "令和5年5月31日",
+    "end": "2025/01/31"
+  },
+  {
+    "id": "subsidy_014",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5320-6274",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/contributing-solving-socialissues/sustainable-finance/finance-week",
+    "who": "中小企業",
+    "amount": "不明",
+    "start": "不明",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_015",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5388-2163",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/nurturing-players/asset-management/post-10/",
+    "who": "不明",
+    "amount": "不明",
+    "start": "不明",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_019",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5000-7005",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/green-finance/green-subsidy",
+    "who": "外国法人",
+    "amount": "5000万円",
+    "start": "令和5年度",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_020",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5000-7005",
+    "url": "https://www.startupandglobalfinancialcity.metro.tokyo.lg.jp/gfct/initiatives/green-finance/sustainability-management",
+    "who": "外国法人",
+    "amount": "5000万円",
+    "start": "不明",
+    "end": "不明"
+  },
+  {
+    "id": "subsidy_024",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5000-7009",
+    "url": "https://www.investtokyo.metro.tokyo.lg.jp/jp/oursupports/fcs.html",
+    "who": "外国企業",
+    "amount": "不明",
+    "start": "令和7年5月16日",
+    "end": "令和7年7月18日"
+  },
+  {
+    "id": "subsidy_025",
+    "submit": "スタートアップ・国際金融都市戦略室戦略推進部戦略事業推進課",
+    "contactInformation": "03-5000-7009",
+    "url": "https://www.investtokyo.metro.tokyo.lg.jp/jp/oursupports/gx-subsidy.html",
+    "who": "中小企業",
+    "amount": "5000万円",
+    "start": "2025/05/16",
+    "end": "令和6年7月12日"
+  }
+]
