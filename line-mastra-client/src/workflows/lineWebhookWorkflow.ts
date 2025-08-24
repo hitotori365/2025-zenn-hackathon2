@@ -2,13 +2,24 @@ import { MastraClient } from "@mastra/client-js";
 import { Client } from '@line/bot-sdk';
 import { checkMessageRelevance } from '../utils/messageRelevanceChecker';
 import { checkSubsidyFound } from '../utils/subsidyResultChecker';
-import { saveUserSession, isActiveSessionWithinTimeLimit, updateLastActivityAt } from '../utils/firestoreService';
+import { saveUserSession, isActiveSessionWithinTimeLimit, updateLastActivityAt, saveSelectedSubsidy } from '../utils/firestoreService';
+import * as fs from 'fs';
+import * as path from 'path';
+import csv from 'csv-parser';
 
 // Workflow input type
 interface LineWebhookInput {
   userId: string;
   messageText: string;
   replyToken?: string;
+}
+
+// Subsidy data type
+interface SubsidyData {
+  id: string;
+  name: string;
+  summary: string;
+  embedding: number[];
 }
 
 // LINEメッセージ送信のヘルパー関数
@@ -37,6 +48,58 @@ const sendLineMessage = async (
       throw error;
     }
   }
+};
+
+// コサイン類似度計算関数
+const cosineSimilarity = (a: number[], b: number[]): number => {
+  if (a.length !== b.length) {
+    throw new Error('Vectors must have the same length');
+  }
+
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    dotProduct += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+};
+
+// CSVファイルから補助金データを読み込む関数
+const loadSubsidyData = async (): Promise<SubsidyData[]> => {
+  const csvPath = path.join(process.cwd(), 'data', 'hojokin2024_with_embeddings.csv');
+  
+  return new Promise((resolve, reject) => {
+    const results: SubsidyData[] = [];
+    
+    fs.createReadStream(csvPath)
+      .pipe(csv())
+      .on('data', (data: any) => {
+        try {
+          // embed列のJSONを解析
+          const embedding = JSON.parse(data.embed);
+          results.push({
+            id: data.id,
+            name: data.name,
+            summary: data.summary,
+            embedding: embedding
+          });
+        } catch (error) {
+          console.error(`Error parsing embedding for ${data.id}:`, error);
+        }
+      })
+      .on('end', () => {
+        console.log(`Loaded ${results.length} subsidy entries from CSV`);
+        resolve(results);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
 };
 
 // Workflow handler function
@@ -81,67 +144,81 @@ export const handleLineWebhook = async (
       console.log('Message is not relevant to subsidies. Skipping processing.');
       return { success: true, message: 'Message not relevant - no response sent' };
     }
-    // inquiry-agentのA2Aクライアントを取得
-    const inquiryAgent = mastraClient.getA2A("inquiryAgent");
-    const id = crypto.randomUUID();
-    
-    // inquiryAgentにメッセージを送信
-    const response = await inquiryAgent.sendMessage({
-      id,
-      message: {
-        role: "user",
-        parts: [
-          { type: "text", text: input.messageText },
-        ],
-      },
-    });
-    
-    // タスクの状態を確認
-    let task = response.task;
-    
-    // タスクがworking状態の場合は完了まで待機
-    if (task.status.state === "working") {
-      console.log("Waiting for task to complete...");
-      while (task.status.state === "working") {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        task = await inquiryAgent.getTask({ id: task.id });
-      }
-    }
-    
-    // レスポンスメッセージを抽出
-    let responseText = "";
-    for (const part of task.status.message?.parts || []) {
-      if (part.type === "text") {
-        responseText += part.text;
-      }
-    }
-    
-    if (!responseText) {
-      responseText = "申し訳ございません。うまく聞き取れませんでした。";
-    }
-    
-    // 補助金が見つかったかチェック
-    const subsidyFound = checkSubsidyFound(responseText);
-    if (!subsidyFound) {
-      console.log('No subsidy found. Skipping response.');
-      return { success: true, message: 'No subsidy found - no response sent' };
-    }
-    
-    // Firestoreにユーザーセッションを保存
+    // Gemini APIでエンべディング処理
+    console.log('Generating embedding for user message with Gemini API...');
     try {
-      await saveUserSession(input.userId);
-      console.log('User session saved to Firestore');
+      const { GoogleGenAI } = await import('@google/genai');
+      
+      const genai = new GoogleGenAI({
+        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+      });
+      
+      // メッセージをエンべディング
+      const response = await genai.models.embedContent({
+        model: 'text-embedding-004',
+        contents: input.messageText
+
+      });
+      
+      if (!response.embeddings || response.embeddings.length === 0) {
+        throw new Error('No embeddings returned from Gemini API');
+      }
+      
+      const embedding = response.embeddings[0].values;
+      if (!embedding) {
+        throw new Error('Embedding values are undefined');
+      }
+      
+      console.log(`Generated embedding with ${embedding.length} dimensions`);
+      console.log('Embedding values (first 10):', embedding.slice(0, 10));
+      
+      // CSVファイルを読み込んでベクトル検索
+      console.log('Loading subsidy data from CSV...');
+      const subsidyData = await loadSubsidyData();
+      
+      // コサイン類似度を計算して最も関連する補助金を見つける
+      let maxSimilarity = -1;
+      let mostRelevantSubsidy = '';
+      let mostRelevantSubsidyId = '';
+      
+      for (const subsidy of subsidyData) {
+        // 次元数が異なる場合はスキップまたはエラーログ
+        if (embedding.length !== subsidy.embedding.length) {
+          console.log(`Dimension mismatch: Query(${embedding.length}) vs ${subsidy.name}(${subsidy.embedding.length})`);
+          continue;
+        }
+        
+        const similarity = cosineSimilarity(embedding, subsidy.embedding);
+        console.log(`Similarity with "${subsidy.name}": ${similarity.toFixed(4)}`);
+        
+        if (similarity > maxSimilarity) {
+          maxSimilarity = similarity;
+          mostRelevantSubsidy = subsidy.name;
+          mostRelevantSubsidyId = subsidy.id;
+        }
+      }
+      
+      console.log(`Most relevant subsidy: ${mostRelevantSubsidy} (ID: ${mostRelevantSubsidyId}, similarity: ${maxSimilarity.toFixed(4)})`);
+      
+      // FirestoreにsubsidyIdを保存
+      await saveSelectedSubsidy(input.userId, {
+        id: mostRelevantSubsidyId,
+        name: mostRelevantSubsidy
+      });
+      
+      // 結果をテスト用に返すメッセージ
+      const testMessage = `最も関連する補助金: ${mostRelevantSubsidy} (ID: ${mostRelevantSubsidyId}, 類似度: ${maxSimilarity.toFixed(4)})`;
+      
+      if (lineClient) {
+        await sendLineMessage(lineClient, input.userId, testMessage, input.replyToken);
+      }
+      
+      return { success: true, message: testMessage };
+      
     } catch (error) {
-      console.error('Failed to save user session to Firestore:', error);
-      // Firestoreの保存に失敗してもLINEへの返信は続行
+      console.error('Error generating embedding:', error);
+      throw error;
     }
-    
-    // LINEに返信
-    if (lineClient) {
-      await sendLineMessage(lineClient, input.userId, responseText, input.replyToken);
-    }
-    
-    return { success: true, message: responseText };
     
   } catch (error) {
     console.error('Error processing LINE message:', error);

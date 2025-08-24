@@ -75,6 +75,12 @@ export async function getUserSession(userId: string): Promise<UserSession | null
     if (data.subsidyMode?.lastActivityAt) {
       data.subsidyMode.lastActivityAt = (data.subsidyMode.lastActivityAt as any).toDate();
     }
+    
+    // subsidyIdをconsole.logで確認
+    if (data.selectedSubsidy?.subsidyId) {
+      console.log(`Retrieved subsidyId for userId ${userId}: ${data.selectedSubsidy.subsidyId}`);
+    }
+    
     return data;
   } catch (error) {
     console.error('Error getting user session:', error);
