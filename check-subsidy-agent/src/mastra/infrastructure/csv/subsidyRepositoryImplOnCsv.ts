@@ -5,7 +5,6 @@ import {
   SubsidyData,
   SubsidyRepository,
 } from "../../repositories/subsidy-repository.js";
-import { subsidyCSVRow } from "./subsidyCSVRow.js";
 
 // Type for raw CSV data (allows string indexing)
 type RawCSVData = Record<string, string>;
@@ -42,25 +41,23 @@ const readCSVData = async (csvFilePath: string): Promise<RawCSVData[]> => {
   });
 };
 
-// Curried function to create a mapper with custom CSV row mapping
-const createCsvToSubsidyDataMapper =
-  (csvRowMapper: SubsidyData) =>
-  (csvRow: RawCSVData): SubsidyData => ({
-    year: csvRow[csvRowMapper.year] || "",
-    organizationNumber: csvRow[csvRowMapper.organizationNumber] || "",
-    organization: csvRow[csvRowMapper.organization] || "",
-    policyFieldNumber: csvRow[csvRowMapper.policyFieldNumber] || "",
-    policyField: csvRow[csvRowMapper.policyField] || "",
-    businessName: csvRow[csvRowMapper.businessName] || "",
-    subsidyName: csvRow[csvRowMapper.subsidyName] || "",
-    subsidyDescription: csvRow[csvRowMapper.subsidyDescription] || "",
-    targetNumber: csvRow[csvRowMapper.targetNumber] || "",
-    target: csvRow[csvRowMapper.target] || "",
-    budgetAmount: csvRow[csvRowMapper.budgetAmount] || "",
-    department: csvRow[csvRowMapper.department] || "",
-    contact: csvRow[csvRowMapper.contact] || "",
-    url: csvRow[csvRowMapper.url] || "",
-  });
+// Function to map CSV row to SubsidyData
+const mapCsvToSubsidyData = (csvRow: RawCSVData): SubsidyData => ({
+  year: csvRow.id || "",
+  organizationNumber: csvRow.id || "",
+  organization: csvRow.id || "",
+  policyFieldNumber: csvRow.id || "",
+  policyField: csvRow.id || "",
+  businessName: csvRow.id || "",
+  subsidyName: csvRow.name || "",
+  subsidyDescription: csvRow.summary || "",
+  targetNumber: csvRow.id || "",
+  target: csvRow.id || "",
+  budgetAmount: csvRow.id || "",
+  department: csvRow.id || "",
+  contact: csvRow.id || "",
+  url: csvRow.id || "",
+});
 
 // Pure function to perform search filtering
 const filterSubsidies = (
@@ -107,14 +104,12 @@ export const createCSVSubsidyRepository = (
   return {
     findAll: async (): Promise<SubsidyData[]> => {
       const rawCsvData = await readCSVData(resolvedPath);
-      const csvMapper = createCsvToSubsidyDataMapper(subsidyCSVRow);
-      return rawCsvData.map(csvMapper);
+      return rawCsvData.map(mapCsvToSubsidyData);
     },
 
     search: async (query: string): Promise<SubsidyData[]> => {
       const rawCsvData = await readCSVData(resolvedPath);
-      const csvMapper = createCsvToSubsidyDataMapper(subsidyCSVRow);
-      const subsidies = rawCsvData.map(csvMapper);
+      const subsidies = rawCsvData.map(mapCsvToSubsidyData);
       return filterSubsidies(subsidies, query);
     },
   };

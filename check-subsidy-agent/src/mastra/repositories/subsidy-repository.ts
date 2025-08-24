@@ -1,4 +1,11 @@
-// Business data model (clean interface)
+// Simplified data model for new CSV structure (id, name, summary)
+export interface SimplifiedSubsidyData {
+  id: string;
+  name: string;
+  summary: string;
+}
+
+// Business data model (clean interface) - kept for compatibility
 export interface SubsidyData {
   year: string;
   organizationNumber: string;

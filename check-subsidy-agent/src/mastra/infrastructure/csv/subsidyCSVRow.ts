@@ -1,16 +1,6 @@
+// CSVの実際の列名にマッピング (id, name, summary)
 export const subsidyCSVRow = {
-  year: "id",
-  organizationNumber: "id", 
-  organization: "name",
-  policyFieldNumber: "id",
-  policyField: "name",
-  businessName: "name",
-  subsidyName: "name",
-  subsidyDescription: "summary",
-  targetNumber: "id",
-  target: "summary",
-  budgetAmount: "summary",
-  department: "summary",
-  contact: "summary",
-  url: "summary",
+  id: "id",
+  name: "name",
+  summary: "summary",
 } as const;
