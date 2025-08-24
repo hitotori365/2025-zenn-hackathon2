@@ -16,7 +16,10 @@ def add_embeddings_to_csv():
     genai.configure(api_key=api_key)
     
     # CSVファイルを読み込み（タブ区切り）
-    df = pd.read_csv('hojokin2024.csv', sep='\t').head(2)
+    df = pd.read_csv('hojokin2024.csv', sep='\t').head(10)
+    
+    # 全ての要素から半角カンマを削除
+    df = df.replace(',', '', regex=True)
     
     print(f"Processing {len(df)} rows...")
     
@@ -33,17 +36,11 @@ def add_embeddings_to_csv():
                 model="models/text-embedding-004",
                 content=summary_text,
                 task_type="RETRIEVAL_DOCUMENT",
-                output_dimensionality=3072
+                output_dimensionality=768
             )
             
-            # エンベディングを取得（resultは辞書型）
+            # エンベディングを取得し、正規化
             embedding_values = np.array(result['embedding'])
-            
-            # ★ここで次元数を確認
-            embedding_length = len(embedding_values)
-            print(f"Row {idx + 1} - Embedding dimension: {embedding_length}")
-            
-            # エンベディングを正規化
             normalized_embedding = embedding_values / np.linalg.norm(embedding_values)
             
             # リストに変換して追加
